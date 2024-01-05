@@ -1,3 +1,5 @@
+
+
 1. Assessment. 2014 Feb;21(1):119-28. doi: 10.1177/1073191112437594. Epub 2012 Feb 
 20.
 
@@ -59419,11 +59421,13 @@ outcomes following prenatal exposure to AEDs and has contributed to studies
 funded by Sanofi Aventis and UCB Pharma. NA has been sponsored to attend 
 educational meetings and conferences in epilepsy over the last five years by UCB 
 Pharma, GSK and Boehringer Ingelheim, and has participated in regional advisory 
-Board meetings for Eisai on their products eslicarbazepine and zonisamide. AM 
+Board meetings for Eisai on their products eslicarbazepine and zonisamide.
+AM 
 has been sponsored to attend a conference and has had research funding from 
 Pfizer Ltd. Also a consortium of pharmaceutical companies (GSK, EISAI, UCB 
 Pharma) funded the National Audit of Seizure Management in Hospitals (NASH) 
-through grants paid to University of Liverpool.  No further conflicts of 
+through grants paid to University of Liverpool. 
+No further conflicts of 
 interests declared. Clarification statement added from the Co‐ordinating Editor 
 on 8 June 2020: This review was found by the Cochrane Funding Arbiters, 
 post‐publication, to be noncompliant with the Cochrane conflict of interest 
