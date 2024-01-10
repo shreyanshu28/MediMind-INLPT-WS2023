@@ -15,15 +15,16 @@ import os
 from functools import partial
 from ray.data import ActorPoolStrategy
 import logging
-# import psycopg2
-#from pgvector import register_vector
+import psycopg2
+from pgvector.psycopg2 import register_vector
 
 # Suppress FutureWarnings
 import warnings
 warnings.filterwarnings("ignore")
 
 # Initialize Ray
-ray.init(num_gpus=1, logging_level = logging.ERROR)
+os.environ['RAY_worker_register_timeout_seconds'] = '1000'
+ray.init(num_gpus=1, num_cpus = 6, logging_level = logging.ERROR)
 
 # Step 1: Vector DB creation
 # Set the desired output directory for vector DB creation
@@ -62,7 +63,7 @@ for i, article in tqdm(enumerate(articles)):
     for K in articles_dict_keys:
         articles_dict[K].append(dictionary[K])
 
-df = pd.DataFrame(articles_dict,columns=articles_dict_keys, index=None)
+df = pd.DataFrame(articles_dict,columns=articles_dict_keys)
 
 # Convert DataFrame to Ray Dataset
 ds = ray.data.from_pandas(df)
@@ -100,19 +101,16 @@ def extract_sections(item):
 # # Step 3: Extract sections from text files in parallel
 sections_ds = ds.flat_map(extract_sections)
 
-
 # sections = sections_ds.take_all()
 # Print the number of extracted sections
 # print(f"Number of extracted sections: {len(sections)}")
 
 # Function to chunk a section
-def chunk_section(item, chunk_size, chunk_overlap):
+def chunk_section(section, chunk_size, chunk_overlap):
     # Extract sections
-    sections = extract_sections(item)
+    print(type(section), section)
 
-    # Print the length of the read text for debugging
-    print(f"Length of text in {item}: {len(text)}")
-
+    print("section:", section["source"])
 
     # Chunk each section
     text_splitter = RecursiveCharacterTextSplitter(
@@ -121,15 +119,13 @@ def chunk_section(item, chunk_size, chunk_overlap):
         chunk_overlap=chunk_overlap,
         length_function=len)
 
-    chunked_sections = []
-    for section in sections:
-        chunks = text_splitter.create_documents(
-            texts=[section["text"]], 
-            metadatas=[{"source": section["source"], "metadata": section["metadata"]}])
+    
+    chunks = text_splitter.create_documents(
+        texts=[section["text"]], 
+        metadatas=[{"source": section["source"], "metadata": section["metadata"]}])
 
-        chunked_sections.extend([{"text": chunk.page_content, "source": chunk.metadata["source"], "metadata": chunk.metadata["metadata"]} for chunk in chunks])
+    return [{"text": chunk.page_content, "source": chunk.metadata["source"], "metadata": chunk.metadata["metadata"]} for chunk in chunks]
 
-    return chunked_sections
 
 # Apply chunking to the entire dataset
 chunk_size = 500
@@ -196,9 +192,15 @@ sample = embedded_chunks.take(1)
 print ("embedding size:", len(sample[0]["embeddings"]))
 print (sample[0]["text"])
 
-""" class StoreResults:
+#setting up vector DB
+os.environ["MIGRATION_FP"] = f"vector-pubmed_bge_large.sql"
+os.environ["SQL_DUMP_FP"] = f"{EFS_DIR}/sql_dumps/{embedding_model_name.split('/')[-1]}_{chunk_size}_{chunk_overlap}.sql"
+#write DB connection string to env variable
+# os.environ["DB_CONNECTION_STRING"] = "postgresql://postgres:postgres@localhost:5432/postgres"
+
+class StoreResults:
     def __call__(self, batch):
-        with psycopg2.connect(os.environ["DB_CONNECTION_STRING"]) as conn:
+        with psycopg2.connect("dbname='pubmedtest' user='dbuser' host='localhost' password='dbpass'") as conn:
             register_vector(conn)
             with conn.cursor() as cur:
                 for text, source, embedding in zip(batch["text"], batch["source"], batch["embeddings"]):
@@ -210,8 +212,8 @@ embedded_chunks.map_batches(
     StoreResults,
     batch_size=128,
     num_cpus=1,
-    compute=ActorPoolStrategy(size=28),
+    compute=ActorPoolStrategy(size=2),
 ).count()
- """
+
 # Shutdown Ray
 ray.shutdown()
