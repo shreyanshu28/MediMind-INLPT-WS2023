@@ -1,6 +1,6 @@
 import os
 import re
-from bs4 import BeautifulSoup
+# from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
 from tqdm.auto import tqdm
@@ -14,12 +14,16 @@ from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 import os
 from functools import partial
 from ray.data import ActorPoolStrategy
-import psycopg2
+import logging
+# import psycopg2
 #from pgvector import register_vector
 
+# Suppress FutureWarnings
+import warnings
+warnings.filterwarnings("ignore")
 
 # Initialize Ray
-ray.init(num_gpus=1)
+ray.init(num_gpus=1, logging_level = logging.ERROR)
 
 # Step 1: Vector DB creation
 # Set the desired output directory for vector DB creation
@@ -28,18 +32,14 @@ EFS_DIR = "pubMed"
 # Create Path object for the directory
 DOCS_DIR = Path(EFS_DIR, "docs.ray.io/en/master/")
 
-""" # Create a Ray dataset from HTML files in the directory
-ds = ray.data.from_items([{"path": str(path)} for path in DOCS_DIR.rglob("*.html") if not path.is_dir()])
-
-# Print the number of documents in the Ray Dataset
-print(f"Number of documents in the Ray Dataset: {ds.count()}") """
 
 # Step 2: Loading Pubmed data and processing
 # Read Pubmed data and process
+#TODO: resolve multiple tags for authors, locations, MHs etc. add _digit to the end of the key
 articles_dict_keys = ['PMID', 'OWN', 'STAT', 'DCOM', 'LR', 'IS', 'VI', 'IP', 'DP', 'TI', 'PG', 'LID', 'AB', 'FAU', 'AU', 'AD', 'LA', 'GR', 'PT', 'DEP', 'PL', 'TA', 'JT', 'JID', 'SB', 'MH', 'PMC', 'MID', 'COIS', 'EDAT', 'MHDA', 'CRDT', 'PHST', 'AID', 'PST', 'SO', 'AUID', 'CIN', 'CI', 'OTO', 'OT']
 articles_dict = dict([(key, []) for key in articles_dict_keys])
 
-with open('pubMed/PubMedTextFiles/pubmed-intelligen-set.txt', 'r', encoding="utf-8") as f:
+with open('PubMed Data/PubMedTextFiles/pubmed-intelligen-set.txt', 'r', encoding="utf-8") as f:
     text = f.read()
 
 articles = text.split("\n\n")
@@ -62,7 +62,7 @@ for i, article in tqdm(enumerate(articles)):
     for K in articles_dict_keys:
         articles_dict[K].append(dictionary[K])
 
-df = pd.DataFrame(articles_dict)
+df = pd.DataFrame(articles_dict,columns=articles_dict_keys, index=None)
 
 # Convert DataFrame to Ray Dataset
 ds = ray.data.from_pandas(df)
@@ -77,26 +77,33 @@ def extract_sections(item):
     sections = []
 
     # 'AB' is the key containing the abstract text in dictionary
-    abstract = item.get('AB', '')
-    pmid = item.get('PMID', '')
+    #item is a dictionary with all keys
+    title = item['TI']
+    abstract = item['AB']
+    pmid = item['PMID']
+
+    #metadata keys 
+    metadata_keys = ['AU','AD','LA','MH','PHST','DP','TI','OT']
 
     # Save the abstract as a section
     if abstract:
         section = {
-            'source': pmid.strip(),  # Using pmid as the anchor id for the abstract
-            'text': abstract.strip()
+            'source': pmid,  # Using pmid as the anchor id for the abstract
+            'text': "title: " + title + "abstract: " + abstract,
+            'metadata': {K: item[K] for K in metadata_keys if item[K]} #add selected columns for metadata, can be used for advanced search at documents retrieval stage
         }
         sections.append(section)
 
     return sections
 
 
-# Step 3: Extract sections from text files in parallel
+# # Step 3: Extract sections from text files in parallel
 sections_ds = ds.flat_map(extract_sections)
-sections = sections_ds.take_all()
 
+
+# sections = sections_ds.take_all()
 # Print the number of extracted sections
-print(f"Number of extracted sections: {len(sections)}")
+# print(f"Number of extracted sections: {len(sections)}")
 
 # Function to chunk a section
 def chunk_section(item, chunk_size, chunk_overlap):
@@ -118,14 +125,14 @@ def chunk_section(item, chunk_size, chunk_overlap):
     for section in sections:
         chunks = text_splitter.create_documents(
             texts=[section["text"]], 
-            metadatas=[{"source": section.get("source", "")}])
+            metadatas=[{"source": section["source"], "metadata": section["metadata"]}])
 
-        chunked_sections.extend([{"text": chunk.page_content, "source": chunk.metadata["source"]} for chunk in chunks])
+        chunked_sections.extend([{"text": chunk.page_content, "source": chunk.metadata["source"], "metadata": chunk.metadata["metadata"]} for chunk in chunks])
 
     return chunked_sections
 
 # Apply chunking to the entire dataset
-chunk_size = 300
+chunk_size = 500
 chunk_overlap = 50
 chunks_ds = sections_ds.flat_map(partial(
     chunk_section, 
@@ -152,13 +159,8 @@ print(f"{chunks_ds.count()} chunks")
 chunks_ds.show(1)
 
 def get_embedding_model(embedding_model_name, model_kwargs, encode_kwargs):
-    if embedding_model_name == "text-embedding-ada-002":
-        embedding_model = OpenAIEmbeddings(
-            model=embedding_model_name,
-            openai_api_base=os.environ["OPENAI_API_BASE"],
-            openai_api_key=os.environ["OPENAI_API_KEY"])
-    else:
-        embedding_model = HuggingFaceEmbeddings(
+    #we use hugingface model
+    embedding_model = HuggingFaceEmbeddings(
             model_name=embedding_model_name,  # also works with model_path
             model_kwargs=model_kwargs,
             encode_kwargs=encode_kwargs)
