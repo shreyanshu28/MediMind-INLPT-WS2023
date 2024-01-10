@@ -1,0 +1,215 @@
+import os
+import re
+from bs4 import BeautifulSoup
+import numpy as np
+import pandas as pd
+from tqdm.auto import tqdm
+import ray
+from pathlib import Path
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from functools import partial
+from langchain.document_loaders import ReadTheDocsLoader
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.embeddings.huggingface import HuggingFaceEmbeddings
+import os
+from functools import partial
+from ray.data import ActorPoolStrategy
+import psycopg2
+#from pgvector import register_vector
+
+
+# Initialize Ray
+ray.init(num_gpus=1)
+
+# Step 1: Vector DB creation
+# Set the desired output directory for vector DB creation
+EFS_DIR = "pubMed"
+
+# Create Path object for the directory
+DOCS_DIR = Path(EFS_DIR, "docs.ray.io/en/master/")
+
+""" # Create a Ray dataset from HTML files in the directory
+ds = ray.data.from_items([{"path": str(path)} for path in DOCS_DIR.rglob("*.html") if not path.is_dir()])
+
+# Print the number of documents in the Ray Dataset
+print(f"Number of documents in the Ray Dataset: {ds.count()}") """
+
+# Step 2: Loading Pubmed data and processing
+# Read Pubmed data and process
+articles_dict_keys = ['PMID', 'OWN', 'STAT', 'DCOM', 'LR', 'IS', 'VI', 'IP', 'DP', 'TI', 'PG', 'LID', 'AB', 'FAU', 'AU', 'AD', 'LA', 'GR', 'PT', 'DEP', 'PL', 'TA', 'JT', 'JID', 'SB', 'MH', 'PMC', 'MID', 'COIS', 'EDAT', 'MHDA', 'CRDT', 'PHST', 'AID', 'PST', 'SO', 'AUID', 'CIN', 'CI', 'OTO', 'OT']
+articles_dict = dict([(key, []) for key in articles_dict_keys])
+
+with open('pubMed/PubMedTextFiles/pubmed-intelligen-set.txt', 'r', encoding="utf-8") as f:
+    text = f.read()
+
+articles = text.split("\n\n")
+
+for i, article in tqdm(enumerate(articles)):
+    lines = article.split("\n")
+    dictionary = dict.fromkeys(articles_dict_keys)
+
+    for line in lines:
+        if len(line) > 4 and line[4] == '-':
+            key, value = line.split("-", 1)
+            key = key.strip()
+            value = value.strip()
+            dictionary[key] = value
+        else:
+            key = key.strip()
+            value = value.strip()
+            dictionary[key] = dictionary[key] + line
+
+    for K in articles_dict_keys:
+        articles_dict[K].append(dictionary[K])
+
+df = pd.DataFrame(articles_dict)
+
+# Convert DataFrame to Ray Dataset
+ds = ray.data.from_pandas(df)
+
+# Step 3: Print the number of documents in the Ray Dataset
+# Print the number of records in the dataset
+print(f"Number of records in the dataset: {ds.count()}")
+
+# print("Current article:", article)
+
+def extract_sections(item):
+    sections = []
+
+    # 'AB' is the key containing the abstract text in dictionary
+    abstract = item.get('AB', '')
+    pmid = item.get('PMID', '')
+
+    # Save the abstract as a section
+    if abstract:
+        section = {
+            'source': pmid.strip(),  # Using pmid as the anchor id for the abstract
+            'text': abstract.strip()
+        }
+        sections.append(section)
+
+    return sections
+
+
+# Step 3: Extract sections from text files in parallel
+sections_ds = ds.flat_map(extract_sections)
+sections = sections_ds.take_all()
+
+# Print the number of extracted sections
+print(f"Number of extracted sections: {len(sections)}")
+
+# Function to chunk a section
+def chunk_section(item, chunk_size, chunk_overlap):
+    # Extract sections
+    sections = extract_sections(item)
+
+    # Print the length of the read text for debugging
+    print(f"Length of text in {item}: {len(text)}")
+
+
+    # Chunk each section
+    text_splitter = RecursiveCharacterTextSplitter(
+        separators=["\n\n", "\n", " ", ""],
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+        length_function=len)
+
+    chunked_sections = []
+    for section in sections:
+        chunks = text_splitter.create_documents(
+            texts=[section["text"]], 
+            metadatas=[{"source": section.get("source", "")}])
+
+        chunked_sections.extend([{"text": chunk.page_content, "source": chunk.metadata["source"]} for chunk in chunks])
+
+    return chunked_sections
+
+# Apply chunking to the entire dataset
+chunk_size = 300
+chunk_overlap = 50
+chunks_ds = sections_ds.flat_map(partial(
+    chunk_section, 
+    chunk_size=chunk_size, 
+    chunk_overlap=chunk_overlap))
+
+""" # Chunk a sample section
+chunk_size = 300
+chunk_overlap = 50
+text_splitter = RecursiveCharacterTextSplitter(
+    separators=["\n\n", "\n", " ", ""],
+    chunk_size=chunk_size,
+    chunk_overlap=chunk_overlap,
+    length_function=len,
+)
+sample_section = sections_ds.take(1)[0]
+chunks = text_splitter.create_documents(
+    texts=[sample_section["text"]], 
+    metadatas=[{"source": sample_section["source"]}])
+print (chunks[0]) """
+
+# Display the count of chunks and a sample chunk
+print(f"{chunks_ds.count()} chunks")
+chunks_ds.show(1)
+
+def get_embedding_model(embedding_model_name, model_kwargs, encode_kwargs):
+    if embedding_model_name == "text-embedding-ada-002":
+        embedding_model = OpenAIEmbeddings(
+            model=embedding_model_name,
+            openai_api_base=os.environ["OPENAI_API_BASE"],
+            openai_api_key=os.environ["OPENAI_API_KEY"])
+    else:
+        embedding_model = HuggingFaceEmbeddings(
+            model_name=embedding_model_name,  # also works with model_path
+            model_kwargs=model_kwargs,
+            encode_kwargs=encode_kwargs)
+    return embedding_model
+
+# Define the EmbedChunks class
+class EmbedChunks:
+    def __init__(self, model_name):
+        self.embedding_model = get_embedding_model(
+            embedding_model_name=model_name,
+            model_kwargs={"device": "cuda"},
+            encode_kwargs={"device": "cuda", "batch_size": 100})
+    def __call__(self, batch):
+        embeddings = self.embedding_model.embed_documents(batch["text"])
+        return {"text": batch["text"], "source": batch["source"], "embeddings": embeddings}
+
+
+# Embed chunks
+embedding_model_name = "BAAI/bge-large-en-v1.5"
+embedded_chunks = chunks_ds.map_batches(
+    EmbedChunks,
+    fn_constructor_kwargs={"model_name": embedding_model_name},
+    batch_size=100, 
+    num_gpus=1,
+    compute=ActorPoolStrategy(size=1))
+
+# Display the count of embedded chunks and a sample embedded chunk
+print(f"{embedded_chunks.count()} embedded chunks")
+embedded_chunks.show(1)
+
+# Sample
+sample = embedded_chunks.take(1)
+print ("embedding size:", len(sample[0]["embeddings"]))
+print (sample[0]["text"])
+
+""" class StoreResults:
+    def __call__(self, batch):
+        with psycopg2.connect(os.environ["DB_CONNECTION_STRING"]) as conn:
+            register_vector(conn)
+            with conn.cursor() as cur:
+                for text, source, embedding in zip(batch["text"], batch["source"], batch["embeddings"]):
+                    cur.execute("INSERT INTO document (text, source, embedding) VALUES (%s, %s, %s)", (text, source, embedding,))
+        return {}
+
+# Index data
+embedded_chunks.map_batches(
+    StoreResults,
+    batch_size=128,
+    num_cpus=1,
+    compute=ActorPoolStrategy(size=28),
+).count()
+ """
+# Shutdown Ray
+ray.shutdown()
