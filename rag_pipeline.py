@@ -15,8 +15,9 @@ import os
 from functools import partial
 from ray.data import ActorPoolStrategy
 import logging
-import psycopg2
-from pgvector.psycopg2 import register_vector
+# import psycopg2
+# from pgvector.psycopg2 import register_vector
+from langchain.vectorstores import FAISS
 
 # Suppress FutureWarnings
 import warnings
@@ -28,10 +29,10 @@ ray.init(num_gpus=1, num_cpus = 6, logging_level = logging.ERROR)
 
 # Step 1: Vector DB creation
 # Set the desired output directory for vector DB creation
-EFS_DIR = "pubMed"
+# EFS_DIR = "pubMed"
 
-# Create Path object for the directory
-DOCS_DIR = Path(EFS_DIR, "docs.ray.io/en/master/")
+# # Create Path object for the directory
+# DOCS_DIR = Path(EFS_DIR, "docs.ray.io/en/master/")
 
 
 # Step 2: Loading Pubmed data and processing
@@ -40,30 +41,41 @@ DOCS_DIR = Path(EFS_DIR, "docs.ray.io/en/master/")
 articles_dict_keys = ['PMID', 'OWN', 'STAT', 'DCOM', 'LR', 'IS', 'VI', 'IP', 'DP', 'TI', 'PG', 'LID', 'AB', 'FAU', 'AU', 'AD', 'LA', 'GR', 'PT', 'DEP', 'PL', 'TA', 'JT', 'JID', 'SB', 'MH', 'PMC', 'MID', 'COIS', 'EDAT', 'MHDA', 'CRDT', 'PHST', 'AID', 'PST', 'SO', 'AUID', 'CIN', 'CI', 'OTO', 'OT']
 articles_dict = dict([(key, []) for key in articles_dict_keys])
 
-with open('PubMed Data/PubMedTextFiles/pubmed-intelligen-set.txt', 'r', encoding="utf-8") as f:
-    text = f.read()
+document_folder = "PubMed Data/PubMedTextFiles"
 
-articles = text.split("\n\n")
 
-for i, article in tqdm(enumerate(articles)):
-    lines = article.split("\n")
-    dictionary = dict.fromkeys(articles_dict_keys)
+print("Reading documents...")
+#iterate over files inside documents folder:
+for file_name in tqdm(os.listdir(document_folder)):
+    with open(os.path.join(document_folder,file_name), 'r', encoding="utf-8") as f:
+        text = f.read()
 
-    for line in lines:
-        if len(line) > 4 and line[4] == '-':
-            key, value = line.split("-", 1)
-            key = key.strip()
-            value = value.strip()
-            dictionary[key] = value
-        else:
-            key = key.strip()
-            value = value.strip()
-            dictionary[key] = dictionary[key] + line
+    articles = text.split("\n\n")
 
-    for K in articles_dict_keys:
-        articles_dict[K].append(dictionary[K])
 
+    for i, article in tqdm(enumerate(articles)):
+        lines = article.split("\n")
+        dictionary = dict.fromkeys(articles_dict_keys)
+
+        for line in lines:
+            if len(line) > 4 and line[4] == '-':
+                key, value = line.split("-", 1)
+                key = key.strip()
+                value = value.strip()
+                dictionary[key] = value
+            else:
+                key = key.strip()
+                value = value.strip()
+                dictionary[key] = dictionary[key] + line
+
+        for K in articles_dict_keys:
+            articles_dict[K].append(dictionary[K])
+
+
+print("Read complete, generating DataFrame...")
+print(f"Length of dataset is: {len(articles_dict['PMID'])}")
 df = pd.DataFrame(articles_dict,columns=articles_dict_keys)
+
 
 # Convert DataFrame to Ray Dataset
 ds = ray.data.from_pandas(df)
@@ -89,7 +101,7 @@ def extract_sections(item):
     # Save the abstract as a section
     if abstract:
         section = {
-            'source': pmid,  # Using pmid as the anchor id for the abstract
+            'source': "pubmed"+str(pmid),  # Using pmid as the anchor id for the abstract
             'text': "title: " + title + "abstract: " + abstract,
             'metadata': {K: item[K] for K in metadata_keys if item[K]} #add selected columns for metadata, can be used for advanced search at documents retrieval stage
         }
@@ -108,9 +120,9 @@ sections_ds = ds.flat_map(extract_sections)
 # Function to chunk a section
 def chunk_section(section, chunk_size, chunk_overlap):
     # Extract sections
-    print(type(section), section)
+    # print(type(section), section)
 
-    print("section:", section["source"])
+    # print("section:", section["source"])
 
     # Chunk each section
     text_splitter = RecursiveCharacterTextSplitter(
@@ -171,7 +183,7 @@ class EmbedChunks:
             encode_kwargs={"device": "cuda", "batch_size": 100})
     def __call__(self, batch):
         embeddings = self.embedding_model.embed_documents(batch["text"])
-        return {"text": batch["text"], "source": batch["source"], "embeddings": embeddings}
+        return {"text": batch["text"], "source": batch["source"], "metadata": batch["metadata"], "embeddings": embeddings}
 
 
 # Embed chunks
@@ -185,35 +197,60 @@ embedded_chunks = chunks_ds.map_batches(
 
 # Display the count of embedded chunks and a sample embedded chunk
 print(f"{embedded_chunks.count()} embedded chunks")
-embedded_chunks.show(1)
+# embedded_chunks.show(1)
 
 # Sample
 sample = embedded_chunks.take(1)
 print ("embedding size:", len(sample[0]["embeddings"]))
 print (sample[0]["text"])
 
-#setting up vector DB
-os.environ["MIGRATION_FP"] = f"vector-pubmed_bge_large.sql"
-os.environ["SQL_DUMP_FP"] = f"{EFS_DIR}/sql_dumps/{embedding_model_name.split('/')[-1]}_{chunk_size}_{chunk_overlap}.sql"
-#write DB connection string to env variable
-# os.environ["DB_CONNECTION_STRING"] = "postgresql://postgres:postgres@localhost:5432/postgres"
+# #setting up vector DB
+# os.environ["MIGRATION_FP"] = f"vector-pubmed_bge_large.sql"
+# os.environ["SQL_DUMP_FP"] = f"{EFS_DIR}/sql_dumps/{embedding_model_name.split('/')[-1]}_{chunk_size}_{chunk_overlap}.sql"
+# #write DB connection string to env variable
+# # os.environ["DB_CONNECTION_STRING"] = "postgresql://postgres:postgres@localhost:5432/postgres"
 
-class StoreResults:
-    def __call__(self, batch):
-        with psycopg2.connect("dbname='pubmedtest' user='dbuser' host='localhost' password='dbpass'") as conn:
-            register_vector(conn)
-            with conn.cursor() as cur:
-                for text, source, embedding in zip(batch["text"], batch["source"], batch["embeddings"]):
-                    cur.execute("INSERT INTO document (text, source, embedding) VALUES (%s, %s, %s)", (text, source, embedding,))
-        return {}
+# class StoreResults:
+#     def __call__(self, batch):
+#         # with psycopg2.connect("dbname='pubmedtest' user='dbuser' host='localhost' password='dbpass'") as conn:
+#         #     register_vector(conn)
+#         #     with conn.cursor() as cur:
+#         #         for text, source, embedding in zip(batch["text"], batch["source"], batch["embeddings"]):
+#         #             cur.execute("INSERT INTO document (text, source, embedding) VALUES (%s, %s, %s)", (text, source, embedding,))
+#         # return {}
+#         #use FAISS for vector storage
+#         vector_store = FAISS("postgresql://postgres:password@localhost:5432/nlp_embed")
+#         vector_store.store_vectors(batch["source"], batch["embeddings"])
 
-# Index data
-embedded_chunks.map_batches(
-    StoreResults,
-    batch_size=128,
-    num_cpus=1,
-    compute=ActorPoolStrategy(size=2),
-).count()
+# # Index data
+# embedded_chunks.map_batches(
+#     StoreResults,
+#     batch_size=128,
+#     num_cpus=1,
+#     compute=ActorPoolStrategy(size=2),
+# ).count()
+
+#extract text and embeddings from embedded_chunks and save it using indexed FAISS vectorstore
+text_and_embeddings = []
+metadatas = []
+
+for output in embedded_chunks.iter_rows():
+    text_and_embeddings.append(tuple([output['text'],output['embeddings']]))
+    metadatas.append(output['metadata'])
+
+print("Creating FAISS Vector Index.")
+vector_store = FAISS.from_embeddings(
+    text_and_embeddings,
+    metadatas=metadatas,
+    # Provide the embedding model to embed the query.
+    # The documents are already embedded.
+    embedding=HuggingFaceEmbeddings(model_name=embedding_model_name),
+)
+
+
+print("Saving FAISS index locally.")
+# Persist the vector store.
+vector_store.save_local("faiss_index")
 
 # Shutdown Ray
 ray.shutdown()
