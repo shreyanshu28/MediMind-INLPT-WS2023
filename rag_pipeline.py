@@ -75,6 +75,7 @@ for file_name in tqdm(os.listdir(document_folder)):
             articles_dict[K].append(dictionary[K])
 
 
+
 print("Read complete, generating DataFrame...")
 print(f"Length of dataset is: {len(articles_dict['PMID'])}")
 df = pd.DataFrame(articles_dict,columns=articles_dict_keys)
@@ -262,6 +263,7 @@ vector_store = FAISS.from_embeddings(
     # The documents are already embedded.
     embedding=HuggingFaceEmbeddings(model_name=embedding_model_name),
 )
+
 
 
 print("Saving FAISS index locally.")
