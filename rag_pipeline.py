@@ -25,7 +25,10 @@ warnings.filterwarnings("ignore")
 
 # Initialize Ray
 os.environ['RAY_worker_register_timeout_seconds'] = '1000'
-ray.init(num_gpus=1, num_cpus = 6, logging_level = logging.ERROR)
+# ray.init(num_gpus=1, num_cpus = 6, logging_level = logging.ERROR)
+ray.init()
+
+ray.data.DataContext.get_current().execution_options.verbose_progress = True
 
 # Step 1: Vector DB creation
 # Set the desired output directory for vector DB creation
@@ -41,7 +44,7 @@ ray.init(num_gpus=1, num_cpus = 6, logging_level = logging.ERROR)
 articles_dict_keys = ['PMID', 'OWN', 'STAT', 'DCOM', 'LR', 'IS', 'VI', 'IP', 'DP', 'TI', 'PG', 'LID', 'AB', 'FAU', 'AU', 'AD', 'LA', 'GR', 'PT', 'DEP', 'PL', 'TA', 'JT', 'JID', 'SB', 'MH', 'PMC', 'MID', 'COIS', 'EDAT', 'MHDA', 'CRDT', 'PHST', 'AID', 'PST', 'SO', 'AUID', 'CIN', 'CI', 'OTO', 'OT']
 articles_dict = dict([(key, []) for key in articles_dict_keys])
 
-document_folder = "PubMed Data/PubMedTextFiles"
+document_folder = "PubMedDataPMFormat\PubMedDataPMFormat"
 
 
 print("Reading documents...")
@@ -72,14 +75,28 @@ for file_name in tqdm(os.listdir(document_folder)):
             articles_dict[K].append(dictionary[K])
 
 
+
 print("Read complete, generating DataFrame...")
 print(f"Length of dataset is: {len(articles_dict['PMID'])}")
 df = pd.DataFrame(articles_dict,columns=articles_dict_keys)
 
+#preprocess 
+#remove duplicate articles with same title (there are some articles with different PMIDs but same title)
+df = df.drop_duplicates(subset='TI', keep='first') 
+#remove duplicate articles with same abstract since there are some articles with different PMIDs AND different Titles but same abstract
+df = df.drop_duplicates(subset='AB', keep='first')
+#drop na for title and abstract
+df = df.dropna(subset=['AB','TI'])  #drop na for title and abstract
+#drop based on Not available in a title column
+df = df[df['TI']!='[Not Available].'] 
+
+#save dataframe to parquet 
+# df.to_parquet('pubmed.parquet')
 
 # Convert DataFrame to Ray Dataset
 ds = ray.data.from_pandas(df)
 
+print(df[['TI','PMID','AB','AU','AD','LA','MH','PHST','DP','TI','OT']].describe(include='all'), len(set(articles_dict['PMID'])))
 # Step 3: Print the number of documents in the Ray Dataset
 # Print the number of records in the dataset
 print(f"Number of records in the dataset: {ds.count()}")
@@ -111,7 +128,7 @@ def extract_sections(item):
 
 
 # # Step 3: Extract sections from text files in parallel
-sections_ds = ds.flat_map(extract_sections)
+sections_ds = ds.flat_map(extract_sections, num_cpus=6)
 
 # sections = sections_ds.take_all()
 # Print the number of extracted sections
@@ -246,6 +263,7 @@ vector_store = FAISS.from_embeddings(
     # The documents are already embedded.
     embedding=HuggingFaceEmbeddings(model_name=embedding_model_name),
 )
+
 
 
 print("Saving FAISS index locally.")
