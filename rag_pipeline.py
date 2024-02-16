@@ -11,7 +11,6 @@ from functools import partial
 from langchain.document_loaders import ReadTheDocsLoader
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
-import os
 from functools import partial
 from ray.data import ActorPoolStrategy
 import logging
