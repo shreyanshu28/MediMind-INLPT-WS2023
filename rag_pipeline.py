@@ -43,7 +43,7 @@ ray.data.DataContext.get_current().execution_options.verbose_progress = True
 articles_dict_keys = ['PMID', 'OWN', 'STAT', 'DCOM', 'LR', 'IS', 'VI', 'IP', 'DP', 'TI', 'PG', 'LID', 'AB', 'FAU', 'AU', 'AD', 'LA', 'GR', 'PT', 'DEP', 'PL', 'TA', 'JT', 'JID', 'SB', 'MH', 'PMC', 'MID', 'COIS', 'EDAT', 'MHDA', 'CRDT', 'PHST', 'AID', 'PST', 'SO', 'AUID', 'CIN', 'CI', 'OTO', 'OT']
 articles_dict = dict([(key, []) for key in articles_dict_keys])
 
-document_folder = "PubMedDataPMFormat\PubMedDataPMFormat"
+document_folder = os.path.join("PubMedDataPMFormat","PubMedDataPMFormat")
 
 
 print("Reading documents...")
