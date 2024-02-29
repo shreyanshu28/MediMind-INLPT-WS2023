@@ -1,0 +1,16 @@
+/*!* RoundedTextField.css *!*/
+/*.rounded-text-field {*/
+/*  margin-bottom: 5px;*/
+/*  padding: 10px;*/
+/*  border: 1px solid #ccc;*/
+/*  border-radius: 20px;*/
+/*  outline: none; !* Remove default input outline *!*/
+/*  font-size: 16px;*/
+/*  width: 90%; !* Set the width as a percentage of the container *!*/
+/*  max-width: 400px; !* Set a maximum width if needed *!*/
+/*  transition: border-color 0.3s ease-in-out; !* Optional: Add a transition effect on border color *!*/
+/*}*/
+
+/*.rounded-text-field:focus {*/
+/*  border-color: #007bff; !* Change border color on focus *!*/
+/*}*/
