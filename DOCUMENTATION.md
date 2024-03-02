@@ -27,7 +27,7 @@ In this project we have decided to work with PubMed data to build a Question Ans
 
 - we have built a script that use PubMed API 'Entrez'.
 
-- To use go to the follwoing website and create your API_KEYS and srote it inside config->.env you have to create a API_KEYS. https://account.ncbi.nlm.nih.gov/settings/
+- To use go to the follwoing website and create your API_KEYS and store EMAIL and API_KEYS inside config/.env you have to create a API_KEYS. https://account.ncbi.nlm.nih.gov/settings/
 
 - To download the FAISS_Index files: https://heibox.uni-heidelberg.de/d/b14ff06bffe14d7081ab/
 
