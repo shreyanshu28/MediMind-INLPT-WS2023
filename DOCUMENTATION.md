@@ -79,6 +79,8 @@ In this project we have decided to work with PubMed data to build a Question Ans
 
 4. You can now view frontend in the browser. Local: <http://localhost:3000>
 
+![Alt text](pictures/interface_Screenshot.png "Optional title")
+
 ## Future work
 
 -**User Feedback and Iteration**
