@@ -23,19 +23,25 @@ In this project we have decided to work with PubMed data to build a Question Ans
 
 ## Downloading the data
 
-- we have uploaded data starting from 2013->2019 becuase it has small volume becuase github has file size limitation. Therefore, we have used heibox to store the rest of the data from 2020-> 2024 in HEIBOX in the follwoing linke : https://heibox.uni-heidelberg.de/d/692badba5bfa44f889c6/
+- we have uploaded data starting from 2013->2019 becuase it has small volume becuase github has file size limitation. Therefore, we have used heibox to store the rest of the data from 2020-> 2024 in HEIBOX in the follwoing linke : <https://heibox.uni-heidelberg.de/d/692badba5bfa44f889c6/>
 
 - we have built a script that use PubMed API 'Entrez'.
 
-- To use go to the follwoing website and create your API_KEYS and store EMAIL and API_KEYS inside config/.env you have to create a API_KEYS. https://account.ncbi.nlm.nih.gov/settings/
+- To use go to the follwoing website and create your API_KEYS and store EMAIL and API_KEYS inside config/.env you have to create a API_KEYS. <https://account.ncbi.nlm.nih.gov/settings/>
 
-- To download the FAISS_Index files: https://heibox.uni-heidelberg.de/d/b14ff06bffe14d7081ab/
+- To download the FAISS_Index files: <https://heibox.uni-heidelberg.de/d/b14ff06bffe14d7081ab/>
 
 ## Preprocessing
 
--
+- Change the datatype for each column
 
--
+- Select the significat columns in our case PMID, Abstract, Title, place of publication and date of publication etc...
+
+- drop rows that has duplicate PMID.
+
+- drop rows that has none values for Abstract column
+
+- Save the dataframe in Parquet format to leverage its storage efficiency advantages.
 
 ## Split & Chunk
 
@@ -61,38 +67,54 @@ In this project we have decided to work with PubMed data to build a Question Ans
 
 -
 
-## frontend
+## Frontend
 
-1. cd frontend
+- Unfortuantly, we didn't have much time to integrate the Questioning and Answering system with the frontend but we have built the user interface.
 
-2. npm install
+1. `cd frontend`
 
-3. npm start
+2. `npm install`
+
+3. `npm start`
+
+4. You can now view frontend in the browser. Local: <http://localhost:3000>
 
 ## Future work
 
--
+-**User Feedback and Iteration**
 
--
+- Establish mechanisms for collecting user feedback on the frontend interface and functionality. This feedback will be invaluable for identifying areas for improvement and refining the user experience.
+
+- Plan for iterative development cycles focused on implementing user feedback, fixing issues, and introducing new features based on user needs and technological advancements.
+
+-**Multilingual Data Processing and Analysis**
+
+- Extend the system's capabilities to process and analyze documents in multiple languages addressing the current limitation of English-only support.
+
+- Implement NLP tools and models that are optimized for multilingual processing, such as transformer-based models with multilingual capabilities (e.g., mBERT, XLM-R).
+
+- Develop or integrate translation services to allow users to submit queries in their language and receive translated results, maintaining the semantic integrity of the content.
+
+- Conduct research on language-specific nuances and cultural contexts to ensure accurate interpretation and analysis of foreign language documents.
 
 # Refrences
 
-- https://python.langchain.com/docs/get_started/quickstart#conversation-retrieval-chain
+- <https://python.langchain.com/docs/get_started/quickstart#conversation-retrieval-chain>
 
-- https://python.langchain.com/docs/expression_language/cookbook/retrieval
+- <https://python.langchain.com/docs/expression_language/cookbook/retrieval>
 
-- https://python.langchain.com/docs/integrations/llms/
+- <https://python.langchain.com/docs/integrations/llms/>
 
-- https://python.langchain.com/docs/modules/data_connection/vectorstores/
+- <https://python.langchain.com/docs/modules/data_connection/vectorstores/>
 
-- https://python.langchain.com/docs/modules/data_connection/retrievers/
+- <https://python.langchain.com/docs/modules/data_connection/retrievers/>
 
-- https://js.langchain.com/docs/modules/chains/popular/vector_db_qa
+- <https://js.langchain.com/docs/modules/chains/popular/vector_db_qa>
 
-- https://python.langchain.com/docs/modules/data_connection/retrievers/vectorstore
+- <https://python.langchain.com/docs/modules/data_connection/retrievers/vectorstore>
 
-- https://python.langchain.com/docs/integrations/text_embedding/gpt4all
+- <https://python.langchain.com/docs/integrations/text_embedding/gpt4all>
 
-- https://github.com/ollama/ollama?tab=readme-ov-file
+- <https://github.com/ollama/ollama?tab=readme-ov-file>
 
-- https://github.com/langchain-ai/langgraph/blob/main/examples/rag/langgraph_crag_mistral.ipynb
+- <https://github.com/langchain-ai/langgraph/blob/main/examples/rag/langgraph_crag_mistral.ipynb>
