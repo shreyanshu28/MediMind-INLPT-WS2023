@@ -6,7 +6,7 @@ In this project, we leverage PubMed data to develop a Question Answering (QA) sy
 
 ### Data Acquisition
 
-Acquiring data from a web source poses significant challenges. Our search_and_download_abstracts function automates the process of searching for and downloading abstracts from the PubMed database using the Entrez API. It performs search queries based on specified parameters and downloads abstracts within a given date range. This function is essential for efficiently gathering large volumes of scientific journals, considering the 10,000 record per request limit on the website. To enhance security and maintainability, API keys and email addresses are stored using the 'dotenv package' for environment variable management, rather than being hard-coded.
+Acquiring data from a web source poses significant challenges. Our `search_and_download_abstracts` function automates the process of searching for and downloading abstracts from the PubMed database using the `Entrez` API. It performs search queries based on specified parameters and downloads abstracts within a given date range. This function is essential for efficiently gathering large volumes of scientific journals, considering the 10,000 record per request limit on the website. To enhance security and maintainability, API keys and email addresses are stored using the 'dotenv package' for environment variable management, rather than being hard-coded.
 
 ### Preprocessing (Data Cleaning)
 
@@ -30,8 +30,6 @@ These methods were considered but not implemented in our project:
 ### Downloading the data
 
 * we have uploaded data starting from 2013->2019 becuase it has small volume becuase github has file size limitation. Therefore, we have used HeiBox to store the rest of the data from 2020-> 2024 in HEIBOX in the follwoing linke : <https://heibox.uni-heidelberg.de/d/692badba5bfa44f889c6/>
-
-* we have built a script that use PubMed API 'Entrez'.
 
 * To use go to the follwoing website and create your API_KEYS and store EMAIL and API_KEYS inside config/.env you have to create a API_KEYS. <https://account.ncbi.nlm.nih.gov/settings/>
 
