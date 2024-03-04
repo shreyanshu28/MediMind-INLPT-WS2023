@@ -24,11 +24,11 @@ def create_eval_dataset(rag_pipeline, eval_dataset):
   rag_dataset = []
   retrieval_chain, retriever = rag_pipeline
   chat_history = [HumanMessage(content=""), AIMessage(content="Answered!")]
-  for row in tqdm(eval_dataset):
+  for i,row in tqdm(eval_dataset.iterrows()):
     documents = get_relenvant_documents(retriever, row["context"])
     context = documents[0]
     chat_history = [HumanMessage(content="Question:"), AIMessage(content="Answered!")]
-    answer = chat_history = retrieval_chain.invoke({
+    answer =  retrieval_chain.invoke({
             "chat_history": chat_history,
             "input": row["question"],
             "context": context,
@@ -36,11 +36,14 @@ def create_eval_dataset(rag_pipeline, eval_dataset):
     
     rag_dataset.append(
         {"question" : row["question"],
-         "answer" : answer["response"],
+         "answer" : answer["answer"],
          "contexts" : context,
          "ground_truths" : [row["ground_truth"]]
          }
     )
+    if i > 10:
+      #sample only 10 answers (for faster evaluation)
+      break
   df =  pd.DataFrame(rag_dataset)
   eval_dataset = Dataset.from_pandas(df)
   return eval_dataset
@@ -95,7 +98,7 @@ def plot_metrics_with_values(metrics_dict, title='RAG Metrics'):
 
 
 #read evaldataset
-eval_dataset = pd.read_csv("qa_generated.csv")
+eval_dataset = pd.read_csv("evaluate/qa_generated.csv")
 
 #get rag chain
 
