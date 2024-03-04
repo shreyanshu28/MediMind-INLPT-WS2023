@@ -8,8 +8,8 @@
 
 ## Member Contribution
 
-* Insaf Ozge Berktas: Preprocessing, Split & Chunk, Embeddings, Create a vectore store, alternative chain
-* Jyot Makadiya: Preprocessing, Embeddings, alternative experimental vectordatabase, Conversational chain, Evaluation
+* Insaf Ozge Berktas: Preprocessing, Split & Chunk, Embeddings, Create a vectore store  (experimental vectordatabase), alternative chain (agents and conversational chains)
+* Jyot Makadiya: Preprocessing, Embeddings, alternative experimental vectordatabase (postgreSQL and pgvector), Conversational chain, Evaluation
 * Ahmed: Data Acquisition, Split & Chunk, Embeddings, Create a vectore store, advanced chain and retrieval system
 
 ## Advisor
@@ -37,13 +37,13 @@ With the recent advacement in NLP, there has been a significant increase in the 
 
 
 
-## Approach
+# Approach
 
-### Data Acquisition
+## Data Acquisition
 
 Acquiring data from a web source poses significant challenges. Our `search_and_download_abstracts` function automates the process of searching for and downloading abstracts from the PubMed database using the `Entrez` API. It performs search queries based on specified parameters and downloads abstracts within a given date range. This function is essential for efficiently gathering large volumes of scientific journals, considering the 10,000 record per request limit on the website. To enhance security and maintainability, API keys and email addresses are stored using the 'dotenv package' for environment variable management, rather than being hard-coded.
 
-### Preprocessing (Data Cleaning)
+## Preprocessing (Data Cleaning)
 
 The raw data undergoes cleaning to ensure quality and relevance:
 
@@ -53,7 +53,7 @@ The raw data undergoes cleaning to ensure quality and relevance:
 * Select the significat columns in our case PMID, Abstract, Title, place of publication and date of publication etc...
 * Save the dataframe in Parquet format to leverage its storage efficiency advantages.
 
-### Additional Techniques (Not Implemented)
+## Additional Techniques (Not Implemented)
 
 These methods were considered but not implemented in our project:
 
@@ -74,7 +74,7 @@ These methods were considered but not implemented in our project:
 
 7. Then the **RAG Chain** steps are mentioned below in more details
 
-### Preprocessing
+## Preprocessing
 
 * Change the datatype for each column
 
@@ -86,7 +86,7 @@ These methods were considered but not implemented in our project:
 
 * Save the dataframe in Parquet format to leverage its storage efficiency advantages.
 
-### Split & Chunk
+## Split & Chunk
 
 * In split and chunking process, we use `RecursiveCharacterTextSplitter`. to break down data into smaller segments.
 * Each document is divided recursively, ensuring that the resulting segments have an appropriate size for efficient processing and analysis.
@@ -114,7 +114,7 @@ These methods were considered but not implemented in our project:
 
 * We created a retrieval chain that combines a history-aware retriever and a document chain. The history-aware retriever considers the conversation history, while the document chain processes the retrieved documents. Then, we invoke the retrieval chain with the appropriate inputs to generate responses based on the provided context, metadata, and user query.
 
-## Experimentation Setup and Results
+# Experimentation Setup and Results
 
 Last section describes current final iterated version of the project, however due to time constraints and complexity of the project, we have experimented with different approaches and models to improve the performance of the system. We have experimented with the following approaches:
 * Advanced exploratory data analysis and preprocessing techniques to improve the quality of the data.
@@ -128,11 +128,11 @@ Last section describes current final iterated version of the project, however du
 More about evaluation in the next section.
 
 
-### Evaluation
+# Evaluation
 
 The goal of the evaluation is to assess the performance of the system in retrieving relevant documents and generating accurate responses to user queries. We divided the evaluation in two parts: automated and human evaluation.
 
-#### Automated Evaluation
+## Automated Evaluation
 
 This evaluation is done using generated question answer pairs using a high quality language model. We used the `Mistral-7b-Instruct` model to generate questions and answers for the documents in the dataset. We then used the generated question answer pairs to evaluate the performance of the system.
 
@@ -154,13 +154,13 @@ This evaluation is done using generated question answer pairs using a high quali
 Using these metrics, we can evaluate the performance of the system in retrieving relevant documents and generating accurate responses to user queries.
 
 
-#### Results from automated evaluation
+### Results from automated evaluation
 The automated evaluation scores varied a lot with given configuration of model and vectorembeddings. Most of the systems give an average score of 0.4-0.7 with very low context_precision. 
 * Our analysis show that current model is prone to output verbose response even when given relevant context. To mitigate this issue, we can use a more advanced language model such as Mistral-8x7b or GPT-4. However, because of lack of compute resources and time constraints, we were unable to use these models for evaluation. 
 * We also found that the system is prone to outputting irrelevant documents when query is unclear. This can be mitigated by using a more advanced retrieval system such as RAG with improved search. Our search also limits us to only English language, which can be improved by using a multilingual model.
 * Finally, With the human evalution we evaluated the system to be able to answer factual and abstractive questions with better accuracy compared to questions based on metadata based on time, location, and author.
 
-#### Human Evaluation
+## Human Evaluation
 
 We experimented with the human evaluation on various settings, with chat_history enabled and disabled. We found `chat_history` improves performance of the system due to inclusion of more context. However, this brings another important issue of context window. 
 * Since we are using smaller models for text answer generation, our model only has certain limitation based on how many contextual history and document can be included. So, for example, if the conversation question is out ofthe context window, the model will forget that it answered the question before.
@@ -170,10 +170,10 @@ We experimented with the human evaluation on various settings, with chat_history
 * Abstractive questions: These are questions that require the model to generate an answer based on the context. For example, "What is the main idea of the article?"
 * Metadata based questions: These are questions that require the model to generate an answer based on the metadata of the document. For example, "When was the article published?"
 
-#### Results from human evaluation
+### Results from human evaluation
 
-* We found that the system is able to answer factual and abstractive questions with better accuracy compared to questions based on metadata based on time, location, and author. According to our understanding, this is due to not having enough attention to the given metadata. One way to resolve this issue is reduce the amount of metadata given to the model, or use a more advanced model that can handle the metadata better. However, when using reduced metadata, the model will not be able to answer metadata based questions.
-* 
+* We found that the system is able to answer factual and abstractive questions with better accuracy compared to questions based on metadata such as based on time, location, and author. According to our understanding, this is due to not having enough attention to the given metadata. One way to resolve this issue is reduce the amount of metadata given to the model, or use a more advanced model that can handle the metadata better. However, when using reduced metadata, the model will not be able to answer metadata based questions.
+* To include more robust evaluation, we can periodically 
 
 
 ## Frontend
@@ -190,15 +190,15 @@ We experimented with the human evaluation on various settings, with chat_history
 
 ![Alt text](pictures/interface_Screenshot.png "Optional title")
 
-## Future work
+# Future work
 
-### User Feedback and Iteration
+## User Feedback and Iteration
 
 * Establish mechanisms for collecting user feedback on the frontend interface and functionality. This feedback will be invaluable for identifying areas for improvement and refining the user experience.
 
 * Plan for iterative development cycles focused on implementing user feedback, fixing issues, and introducing new features based on user needs and technological advancements.
 
-### Multilingual Data Processing and Analysis
+## Multilingual Data Processing and Analysis
 
 * Extend the system's capabilities to process and analyze documents in multiple languages addressing the current limitation of English-only support.
 
@@ -208,7 +208,9 @@ We experimented with the human evaluation on various settings, with chat_history
 
 * Conduct research on language-specific nuances and cultural contexts to ensure accurate interpretation and analysis of foreign language documents.
 
-## Refrences
+# Conclusion:
+
+# Refrences
 
 * LangChain. (n.d.). Langchain: A framework for developing applications powered by language models. <https://python.langchain.com/docs/get_started/introduction>
 

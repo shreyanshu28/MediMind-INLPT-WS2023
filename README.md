@@ -29,17 +29,14 @@ pip install -r requirements.txt
 run app and use `ollama pull llama2` to download the model
 run `ollama run llama2` to start the model
 
-8. [Optional] To generate the evaluation dataset:
+8. A) [Optional] To generate the evaluation dataset:
+ download and place **mistral-7b-Instruct-v0.1** and place inside `.cache/hugginface` local directory (alternatively run the following command to download the model: `huggingface-cli download mistral-7b-Instruct-v0.1` </br>
+ Now run the command to generate the evaluation dataset: `python evaluate/generate_evaluation_dataset.py`
 
-* download and place **mistral-7b-Instruct-v0.1** and place inside `.cache/hugginface` local directory (alternatively run the following command to download the model: `huggingface-cli download mistral-7b-Instruct-v0.1`
+9. To fianlly run evalution with given QA dataset:
+ finally run using `python evaluate.py`
 
-* run the command to generate the evaluation dataset: `python generate_evaluation_dataset.py`
 
-* finally run using `python evaluate.py`
-
-[Optional] To evaluate the model, run the following command:
-
-```bash
 
 
 Team Members:
