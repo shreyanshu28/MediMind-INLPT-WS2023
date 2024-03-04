@@ -11,7 +11,7 @@ QA system for pub med abstracts collection dataset
 pip install -r requirements.txt
 ```
 
-## Project Prequistes
+## Project Prerequisites
 
 1. [Optional] Download the dataset files manually from [HeiBox](<https://heibox.uni-heidelberg.de/d/692badba5bfa44f889c6/>) or run the script `PubMed_raw_data.ipynb`.
 
