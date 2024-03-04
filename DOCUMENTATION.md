@@ -87,7 +87,35 @@ These methods were considered but not implemented in our project:
 
 ### Evaluation
 
-* TODO
+The goal of the evaluation is to assess the performance of the system in retrieving relevant documents and generating accurate responses to user queries. We divided the evaluation in two parts: automated and human evaluation.
+
+#### Automated Evaluation:
+This evaluation is done using generated question answer pairs using a high quality language model. We used the `Mistral-7b-Instruct` model to generate questions and answers for the documents in the dataset. We then used the generated question answer pairs to evaluate the performance of the system.
+
+* Choice of model: Instruct model is a high quality language model that is trained on a large dataset and is capable of generating high quality questions and answers by following the instructions provided accurately.
+* Generating questions: We used the Instruct model to generate questions for the documents in the dataset. We used prompt engineering methods to craft a prompt which gives one question per context (in our case abstract).
+* Generating answers: We used the Instruct model to generate answers for the questions generated in the previous step. Here we also used prompt engineering to curate one answer given question and context both.
+* Scalabiliy: Since we use LLM to generate questions and answers, the system is scalable and can be used to generate questions and answers for large datasets. For example, leveraging OpenAI API (for GPT 4) or Huggingface API (for Mistral-8x7b) to generate questions and answers high quality for large datasets.
+* Our methodology created abstractive question for each context/document, we further used raga to evaluate our pipeline output quality. We used the generated question answer pairs to evaluate the performance of the system.
+
+* Evaluation metrics: 
+    answer_relevancy,
+    faithfulness,
+    context_recall,
+    context_precision,
+    context_relevancy,
+    answer_correctness,
+    answer_similarity
+Using these metrics, we can evaluate the performance of the system in retrieving relevant documents and generating accurate responses to user queries.
+#### Results from automated evaluation: 
+TODO
+[add one plot here]
+
+#### Human Evaluation:
+TODO
+
+#### Results from human evaluation:
+TODO
 
 ## Frontend
 
