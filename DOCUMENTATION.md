@@ -4,8 +4,8 @@
 * @jeromepatel: Jyot Makadiya (jyot.makadiya@stud.uni-heidelberg.de)
 * @a-sameh1: Ahmed Abdelraouf (ahmed.abdelraouf@stud.uni-heidelberg.de)
 # Member Contribution:
-* Insaf Ozge Berktas: Preprocessing, Split & Chunk, Embeddings, Create a vectore store, alternative chain
-* Jyot Makadiya: Preprocessing, Embeddings, alternative experimental vectordatabase, Conversational chain, Evaluation
+* Insaf Ozge Berktas: Preprocessing, Split & Chunk, Embeddings, Create a vectore store (and experimental vectordatabase), alternative chain
+* Jyot Makadiya: Preprocessing, Embeddings, Alternative experimental vectordatabase (postgreSQL and pgvector), Conversational chain, Evaluation
 * Ahmed: Data Acquisition, Split & Chunk, Embeddings, Create a vectore store, advanced chain and retrieval system
 
 # Advisor:
@@ -14,9 +14,22 @@
 # Anti-Plagiarism Statement:
 This project is entirely our own work, except where I have clearly acknowledged the contribution of others. It has not been submitted for any other degree or diploma at any institution. We have cited all sources used in its creation, adhering to Heidelberg University's academic integrity and anti-plagiarism policies. By submitting this work for the Project for Natural Language processing course, We consent to its verification for originality and understand the consequences of any found violation of plagiarism standards.
 
-# Overview
+# Introduction
 
 In this project, we leverage PubMed data to develop a Question Answering (QA) system that delivers precise and concise answers based on PubMed articles published from 2013 to 2024. Utilizing the **RAG Architecture**, we implement various NLP techniques such as embeddings creation, storage, loading, chunking, indexing, and information retrieval, along with a conversation retrieval chain. These methods enable our model to comprehend, interpret, and generate new answers from retrieved questions, capturing the semantic essence of the text data effectively.
+
+Our system is designed to be user-friendly and efficient, with the potential to be extended to multilingual data processing and analysis. We also experimented to provide a user interface to interact with the system [not ncluded in final project due to complexity and tim constraints], allowing users to query the model and receive relevant responses based on the context and metadata of the documents.
+
+We propose a comprehensive evaluation strategy that includes both automated and human evaluations. The automated evaluation assesses the system's performance in retrieving relevant documents and generating accurate responses to user queries. The human evaluation focuses on user feedback and iteration, ensuring that the system meets user needs and expectations. 
+
+Our RAG system's architecture is designed to be modular, allowing for easy integration of new features, models, and data sources. This flexibility enables the system to adapt to evolving user requirements and technological advancements, ensuring its long-term relevance and utility. During our experimentation we also explored scalable approach to use distributed execution framework such as Ray to improve the performance of the system. (this has not been included in the final project due to resource contraints and increased complexity)
+
+
+# Related Work
+
+With the recent advacement in NLP, there has been a significant increase in the development of QA systems. The most popular and widely used QA system is the transformer based RAG approach due to increase popularity of chatGPT and various custom requirements. Availability of Open-source models have increased the demand and popularity of RAG based systems. The RAG architecture is a powerful tool for generating responses based on the provided context, metadata, and user queries. It is capable of retrieving relevant documents and generating accurate responses to user queries, making it an ideal choice for our project.
+
+
 
 ## Approach
 
@@ -100,6 +113,20 @@ These methods were considered but not implemented in our project:
 
 * We created a retrieval chain that combines a history-aware retriever and a document chain. The history-aware retriever considers the conversation history, while the document chain processes the retrieved documents. Then, we invoke the retrieval chain with the appropriate inputs to generate responses based on the provided context, metadata, and user query.
 
+## Experimentation Setup and Results
+
+Last section describes current final iterated version of the project, however due to time constraints and complexity of the project, we have experimented with different approaches and models to improve the performance of the system. We have experimented with the following approaches:
+* Advanced exploratory data analysis and preprocessing techniques to improve the quality of the data.
+* The final version only uses simplified approach to split and chunk the data, however we have experimented with different chunking and splitting techniques to improve the quality of the data.
+* Generation of vector embeddings based on 'sentence-transformer' library and various models, in the end we selected recently publisehd GPT4all model to generate embeddings.
+* experimented with storing vector embeddings in pinecone, PostgreSQL and pgvector for similarity search. At the end we resort to using FAISS for similarity search and simplicity. We diverted from using pinecone, PostgreSQL and pgvector due to time constraints and to better focus on evaluation of the pipeline. 
+
+* We have experimented with different language models to generate responses based on the provided context, metadata, and user queries. We have used Mistral-7b-Instruct model to generate questions and answers for the documents in the dataset. We used the generated question answer pairs to evaluate the performance of the system. (along with the different available text-generation models such 'microsoft/phi-2' and Open-source models provides worse results)
+
+* Human evaluation was done using interactive chat command-line interface. Initially, we used the generated question answer pairs to evaluate the performance of the system. However there was stil a need for human evaluation to assess the performance of the system in retrieving relevant documents and generating accurate responses to user queries. Experimentaly we found system to answer factual and abstractive questions with better accuracy compared to questions based on metadata based on time, location, and author.
+More about evaluation in the next section.
+
+
 ### Evaluation
 
 The goal of the evaluation is to assess the performance of the system in retrieving relevant documents and generating accurate responses to user queries. We divided the evaluation in two parts: automated and human evaluation.
@@ -113,6 +140,7 @@ This evaluation is done using generated question answer pairs using a high quali
 * Generating answers: We used the Instruct model to generate answers for the questions generated in the previous step. Here we also used prompt engineering to curate one answer given question and context both.
 * Scalabiliy: Since we use LLM to generate questions and answers, the system is scalable and can be used to generate questions and answers for large datasets. For example, leveraging OpenAI API (for GPT 4) or Huggingface API (for Mistral-8x7b) to generate questions and answers high quality for large datasets.
 * Our methodology created abstractive question for each context/document, we further used raga to evaluate our pipeline output quality. We used the generated question answer pairs to evaluate the performance of the system.
+* The quality of prompts heavily impacted the quality of generated q and a system. Thus, we decided to use Instruct model for better control. 
 
 * Evaluation metrics:
     answer_relevancy,
@@ -121,21 +149,31 @@ This evaluation is done using generated question answer pairs using a high quali
     context_precision,
     context_relevancy,
     answer_correctness,
-    answer_similarity
+    answer_similarity. 
 Using these metrics, we can evaluate the performance of the system in retrieving relevant documents and generating accurate responses to user queries.
 
-#### Results from automated evaluation
 
-TODO
-[add one plot here]
+#### Results from automated evaluation
+The automated evaluation scores varied a lot with given configuration of model and vectorembeddings. Most of the systems give an average score of 0.4-0.7 with very low context_precision. 
+* Our analysis show that current model is prone to output verbose response even when given relevant context. To mitigate this issue, we can use a more advanced language model such as Mistral-8x7b or GPT-4. However, because of lack of compute resources and time constraints, we were unable to use these models for evaluation. 
+* We also found that the system is prone to outputting irrelevant documents when query is unclear. This can be mitigated by using a more advanced retrieval system such as RAG with improved search. Our search also limits us to only English language, which can be improved by using a multilingual model.
+* Finally, With the human evalution we evaluated the system to be able to answer factual and abstractive questions with better accuracy compared to questions based on metadata based on time, location, and author.
 
 #### Human Evaluation
 
-TODO
+We experimented with the human evaluation on various settings, with chat_history enabled and disabled. We found `chat_history` improves performance of the system due to inclusion of more context. However, this brings another important issue of context window. 
+* Since we are using smaller models for text answer generation, our model only has certain limitation based on how many contextual history and document can be included. So, for example, if the conversation question is out ofthe context window, the model will forget that it answered the question before.
+* Our finding suggests that our system will perform much better when using OpenAI or Mistral API with larger models. This already solves the issue of context window and also improves the quality of the answers.
+* We used various types of questions to answer during conversation, these include:
+* Factual questions: These are questions that have a single correct answer. For example, "What is the capital of France?"
+* Abstractive questions: These are questions that require the model to generate an answer based on the context. For example, "What is the main idea of the article?"
+* Metadata based questions: These are questions that require the model to generate an answer based on the metadata of the document. For example, "When was the article published?"
 
 #### Results from human evaluation
 
-TODO
+* We found that the system is able to answer factual and abstractive questions with better accuracy compared to questions based on metadata based on time, location, and author. According to our understanding, this is due to not having enough attention to the given metadata. One way to resolve this issue is reduce the amount of metadata given to the model, or use a more advanced model that can handle the metadata better. However, when using reduced metadata, the model will not be able to answer metadata based questions.
+* 
+
 
 ## Frontend
 
@@ -189,9 +227,12 @@ TODO
 
 * Langchain. (n.d.). LangGraph RAG example notebook. <https://github.com/langchain-ai/langgraph/blob/main/examples/rag/langgraph_self_rag.ipynb?ref=blog.langchain.dev>
 
-* Deci.Ai (n.d.). Deci.Ai: AI for the Enterprise. <https://deci.ai/blog>
+* Deci.Ai (n.d.). Deci.Ai: Blogs for Generative AI.  RAG Evaluation using Langchain <https://deci.ai/blog/evaluating-rag-pipelines-using-langchain-and-ragas/>
+
 * Wolf, T., Debut, L., Sanh, V., Chaumond, J., Delangue, C., Moi, A., ... & Rush, A. M. (2019). HuggingFace's Transformers: State-of-the-art Natural Language Processing. ArXiv, abs/1910.03771.
 * Jiang, A. Q., Sablayrolles, A., Mensch, A., Bamford, C., Chaplot, D. S., Casas, D. D. L., ... & Sayed, W. E. (2023). Mistral 7B. arXiv preprint arXiv:2310.06825.
 * Anyscale. (n.d.). Ray: A distributed execution framework. <https://docs.ray.io/en/master/index.html>
 * FAISS. (n.d.). FAISS: A library for efficient similarity search. 
+* ChatGPT. (n.d.). ChatGPT: OpenAI's conversational language model. <https://openai.com/gpt-3>
+* Anyscale RAG Blog (n.d.) Building a QA system with Ray  <https://www.anyscale.com/blog/building-a-self-hosted-question-answering-service-using-langchain-ray>
 * 
