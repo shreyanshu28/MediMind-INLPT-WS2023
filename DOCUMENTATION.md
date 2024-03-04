@@ -243,4 +243,4 @@ We also experimented with human evaluation based on various question types and p
 * Jiang, A. Q., Sablayrolles, A., Mensch, A., Bamford, C., Chaplot, D. S., Casas, D. D. L., ... & Sayed, W. E. (2023). Mistral 7B. arXiv preprint arXiv:2310.06825.
 * Anyscale. (n.d.). Ray: A distributed execution framework. <https://docs.ray.io/en/master/index.html>
 * FAISS. (n.d.). FAISS: A library for efficient similarity search.
-* Moritz, Philipp, et al. "Ray: A distributed framework for emerging {AI} applications." 13th USENIX symposium on operating systems design and implementation (OSDI 18). 2018.
+* LangChain. (n.d.). Agents. https://python.langchain.com/docs/modules/agents/
