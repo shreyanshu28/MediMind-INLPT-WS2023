@@ -1,3 +1,9 @@
 vectorStore
 evaluate/pubmed.parquet
 qa_generated_dataset.csv
+data/.DS_Store
+frontend/node_modules/
+.DS_Store
+data/.DS_Store
+data/PubMed_Format/*
+draft/faiss_index
