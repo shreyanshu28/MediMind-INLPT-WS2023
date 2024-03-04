@@ -8,9 +8,11 @@
 
 ## Member Contribution
 
-* Insaf Ozge Berktas: Preprocessing, Split & Chunk, Embeddings, Create a vectore store  (experimental vectordatabase), alternative chain (agents and conversational chains)
-* Jyot Makadiya: Preprocessing, Embeddings, alternative experimental vectordatabase (postgreSQL and pgvector), Conversational chain, Evaluation
-* Ahmed: Data Acquisition, Split & Chunk, Embeddings, Create a vectore store, advanced chain and retrieval system
+* Insaf Ozge Berktas: experimental ray preprocessing, Split & Chunk, Embeddings, Create a vectore store  (experimental vectordatabase), alternative chain (agents and conversational chains), human evaluation
+  
+* Jyot Makadiya: Experimental ray preprocessing, Embeddings generation, alternative experimental vectordatabase (postgreSQL and pgvector), Conversational chain (with chat_history), Question-Answer evaluation dataset generation,  Automated evaluation and human evaluation
+
+* Ahmed: Data Acquisition, Exploration and Cleaning, Split & Chunk, Embedding Generation, Vector Store Creation, Development of Chat Prompt Templates, and  Document Chain and Retrieval Chain Implementations. 
 
 ## Advisor
 
@@ -135,6 +137,7 @@ The goal of the evaluation is to assess the performance of the system in retriev
 ## Automated Evaluation
 
 This evaluation is done using generated question answer pairs using a high quality language model. We used the `Mistral-7b-Instruct` model to generate questions and answers for the documents in the dataset. We then used the generated question answer pairs to evaluate the performance of the system.
+* We 
 
 * Choice of model: Instruct model is a high quality language model that is trained on a large dataset and is capable of generating high quality questions and answers by following the instructions provided accurately.
 * Generating questions: We used the Instruct model to generate questions for the documents in the dataset. We used prompt engineering methods to craft a prompt which gives one question per context (in our case abstract).
@@ -173,8 +176,8 @@ We experimented with the human evaluation on various settings, with chat_history
 ### Results from human evaluation
 
 * We found that the system is able to answer factual and abstractive questions with better accuracy compared to questions based on metadata such as based on time, location, and author. According to our understanding, this is due to not having enough attention to the given metadata. One way to resolve this issue is reduce the amount of metadata given to the model, or use a more advanced model that can handle the metadata better. However, when using reduced metadata, the model will not be able to answer metadata based questions.
-* To include more robust evaluation, we can periodically 
-
+* We found that to include more robust conversation, we can periodically update the model chat history based on the user preference and that way have more accurate context for any given user.  
+* 
 
 ## Frontend
 
@@ -210,6 +213,10 @@ We experimented with the human evaluation on various settings, with chat_history
 
 # Conclusion:
 
+In this project, we propose a RAG question answering system based on modular and distributed system. We experimented with various frameworks including Ray, Langchain, PostgreSQL, FAISS and Ollama. 
+We attempted advanced preprocessing, various embeddings generation methodology and various vector store databases. 
+We also used an automated llm based evaluation system to evaluate the rag system's performance again various metrices. This provides a way to scale with larger models for better evaluation accuracy. 
+We also experimented with human evaluation based on various question types and provide some analysis on our findings and how it can be improved. 
 # Refrences
 
 * LangChain. (n.d.). Langchain: A framework for developing applications powered by language models. <https://python.langchain.com/docs/get_started/introduction>
@@ -232,8 +239,8 @@ We experimented with the human evaluation on various settings, with chat_history
 
 * Deci.Ai (n.d.). Deci.Ai: Blogs for Generative AI.  RAG Evaluation using Langchain <https://deci.ai/blog/evaluating-rag-pipelines-using-langchain-and-ragas/>
 
-* Wolf, T., Debut, L., Sanh, V., Chaumond, J., Delangue, C., Moi, A., ... & Rush, A. M. (2019). HuggingFace's Transformers: State-of-the-art Natural Language Processing. ArXiv, abs/1910.03771.
+* Wolf, T., Debut, L., Sanh, V., Chaumond, J., Delangue, C., Moi, A.,K. Rush, A. M. (2019). HuggingFace's Transformers: State-of-the-art Natural Language Processing. ArXiv, abs/1910.03771.
 * Jiang, A. Q., Sablayrolles, A., Mensch, A., Bamford, C., Chaplot, D. S., Casas, D. D. L., ... & Sayed, W. E. (2023). Mistral 7B. arXiv preprint arXiv:2310.06825.
 * Anyscale. (n.d.). Ray: A distributed execution framework. <https://docs.ray.io/en/master/index.html>
 * FAISS. (n.d.). FAISS: A library for efficient similarity search.
-*
+* Moritz, Philipp, et al. "Ray: A distributed framework for emerging {AI} applications." 13th USENIX symposium on operating systems design and implementation (OSDI 18). 2018.
