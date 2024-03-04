@@ -1,8 +1,25 @@
+# Title: Question Answering RAG System for PubMed Data
+# Team Members:
+* @ozgeberktas: Insaf Ozge Berktas (insaf.berktas@stud.uni-heidelberg.de)
+* @jeromepatel: Jyot Makadiya (jyot.makadiya@stud.uni-heidelberg.de)
+* @a-sameh1: Ahmed Abdelraouf (ahmed.abdelraouf@stud.uni-heidelberg.de)
+# Member Contribution:
+* Insaf Ozge Berktas: Preprocessing, Split & Chunk, Embeddings, Create a vectore store, alternative chain
+* Jyot Makadiya: Preprocessing, Embeddings, alternative experimental vectordatabase, Conversational chain, Evaluation
+* Ahmed: Data Acquisition, Split & Chunk, Embeddings, Create a vectore store, advanced chain and retrieval system
+
+# Advisor:
+* Satya Almasian 
+
+# Anti-Plagiarism Statement:
+This project is entirely our own work, except where I have clearly acknowledged the contribution of others. It has not been submitted for any other degree or diploma at any institution. We have cited all sources used in its creation, adhering to Heidelberg University's academic integrity and anti-plagiarism policies. By submitting this work for the Project for Natural Language processing course, We consent to its verification for originality and understand the consequences of any found violation of plagiarism standards.
+
 # Overview
 
 In this project, we leverage PubMed data to develop a Question Answering (QA) system that delivers precise and concise answers based on PubMed articles published from 2013 to 2024. Utilizing the **RAG Architecture**, we implement various NLP techniques such as embeddings creation, storage, loading, chunking, indexing, and information retrieval, along with a conversation retrieval chain. These methods enable our model to comprehend, interpret, and generate new answers from retrieved questions, capturing the semantic essence of the text data effectively.
 
 ## Approach
+
 
 ### Data Acquisition
 
@@ -168,3 +185,10 @@ TODO
 * Ola LLAMA. (n.d.). OLAMA: Open Large Language Model Archive. <https://github.com/ollama/ollama>
 
 * Langchain. (n.d.). LangGraph RAG example notebook. <https://github.com/langchain-ai/langgraph/blob/main/examples/rag/langgraph_self_rag.ipynb?ref=blog.langchain.dev>
+
+* Deci.Ai (n.d.). Deci.Ai: AI for the Enterprise. <https://deci.ai/blog>
+* Wolf, T., Debut, L., Sanh, V., Chaumond, J., Delangue, C., Moi, A., ... & Rush, A. M. (2019). HuggingFace's Transformers: State-of-the-art Natural Language Processing. ArXiv, abs/1910.03771.
+* Jiang, A. Q., Sablayrolles, A., Mensch, A., Bamford, C., Chaplot, D. S., Casas, D. D. L., ... & Sayed, W. E. (2023). Mistral 7B. arXiv preprint arXiv:2310.06825.
+* Anyscale. (n.d.). Ray: A distributed execution framework. <https://docs.ray.io/en/master/index.html>
+* FAISS. (n.d.). FAISS: A library for efficient similarity search. 
+* 

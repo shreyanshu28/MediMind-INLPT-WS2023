@@ -21,6 +21,12 @@ import matplotlib.pyplot as plt
 
 
 def create_eval_dataset(rag_pipeline, eval_dataset):
+  '''
+  Create a dataset for evaluation of the RAG model
+  Call the RAG model to get the answers for the questions in the eval_dataset
+  Use the context from the retrieved documents to get the answers
+  Combine the answers and the context to create the dataset
+  '''
   rag_dataset = []
   retrieval_chain, retriever = rag_pipeline
   chat_history = [HumanMessage(content=""), AIMessage(content="Answered!")]
@@ -50,6 +56,10 @@ def create_eval_dataset(rag_pipeline, eval_dataset):
   
 
 def evaluate_rag_model(rag_dataset):
+  '''
+  Evaluate the RAG model using the metrics
+  
+  '''
   result = evaluate(
     rag_dataset,
     metrics=[
@@ -70,10 +80,6 @@ def evaluate_rag_model(rag_dataset):
 def plot_metrics_with_values(metrics_dict, title='RAG Metrics'):
     """
     Plots a bar chart for metrics contained in a dictionary and annotates the values on the bars.
-
-    Args:
-    metrics_dict (dict): A dictionary with metric names as keys and values as metric scores.
-    title (str): The title of the plot.
     """
     names = list(metrics_dict.keys())
     values = list(metrics_dict.values())
