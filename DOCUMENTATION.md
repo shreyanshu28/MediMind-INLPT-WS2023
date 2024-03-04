@@ -118,7 +118,7 @@ TODO
 
 TODO
 
-#### Results from human evaluation:
+#### Results from human evaluation
 
 TODO
 
