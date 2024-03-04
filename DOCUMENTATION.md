@@ -23,7 +23,7 @@ In this project, we leverage PubMed data to develop a Question Answering (QA) sy
 
 ### Data Acquisition
 
-Acquiring data from a web source poses significant challenges. Our search_and_download_abstracts function automates the process of searching for and downloading abstracts from the PubMed database using the Entrez API. It performs search queries based on specified parameters and downloads abstracts within a given date range. This function is essential for efficiently gathering large volumes of scientific journals, considering the 10,000 record per request limit on the website. To enhance security and maintainability, API keys and email addresses are stored using the 'dotenv package' for environment variable management, rather than being hard-coded.
+Acquiring data from a web source poses significant challenges. Our `search_and_download_abstracts` function automates the process of searching for and downloading abstracts from the PubMed database using the `Entrez` API. It performs search queries based on specified parameters and downloads abstracts within a given date range. This function is essential for efficiently gathering large volumes of scientific journals, considering the 10,000 record per request limit on the website. To enhance security and maintainability, API keys and email addresses are stored using the 'dotenv package' for environment variable management, rather than being hard-coded.
 
 ### Preprocessing (Data Cleaning)
 
@@ -47,8 +47,6 @@ These methods were considered but not implemented in our project:
 ### Downloading the data
 
 * we have uploaded data starting from 2013->2019 becuase it has small volume becuase github has file size limitation. Therefore, we have used HeiBox to store the rest of the data from 2020-> 2024 in HEIBOX in the follwoing linke : <https://heibox.uni-heidelberg.de/d/692badba5bfa44f889c6/>
-
-* we have built a script that use PubMed API 'Entrez'.
 
 * To use go to the follwoing website and create your API_KEYS and store EMAIL and API_KEYS inside config/.env you have to create a API_KEYS. <https://account.ncbi.nlm.nih.gov/settings/>
 
@@ -106,7 +104,8 @@ These methods were considered but not implemented in our project:
 
 The goal of the evaluation is to assess the performance of the system in retrieving relevant documents and generating accurate responses to user queries. We divided the evaluation in two parts: automated and human evaluation.
 
-#### Automated Evaluation:
+#### Automated Evaluation
+
 This evaluation is done using generated question answer pairs using a high quality language model. We used the `Mistral-7b-Instruct` model to generate questions and answers for the documents in the dataset. We then used the generated question answer pairs to evaluate the performance of the system.
 
 * Choice of model: Instruct model is a high quality language model that is trained on a large dataset and is capable of generating high quality questions and answers by following the instructions provided accurately.
@@ -115,7 +114,7 @@ This evaluation is done using generated question answer pairs using a high quali
 * Scalabiliy: Since we use LLM to generate questions and answers, the system is scalable and can be used to generate questions and answers for large datasets. For example, leveraging OpenAI API (for GPT 4) or Huggingface API (for Mistral-8x7b) to generate questions and answers high quality for large datasets.
 * Our methodology created abstractive question for each context/document, we further used raga to evaluate our pipeline output quality. We used the generated question answer pairs to evaluate the performance of the system.
 
-* Evaluation metrics: 
+* Evaluation metrics:
     answer_relevancy,
     faithfulness,
     context_recall,
@@ -124,14 +123,18 @@ This evaluation is done using generated question answer pairs using a high quali
     answer_correctness,
     answer_similarity
 Using these metrics, we can evaluate the performance of the system in retrieving relevant documents and generating accurate responses to user queries.
-#### Results from automated evaluation: 
+
+#### Results from automated evaluation
+
 TODO
 [add one plot here]
 
-#### Human Evaluation:
+#### Human Evaluation
+
 TODO
 
-#### Results from human evaluation:
+#### Results from human evaluation
+
 TODO
 
 ## Frontend
