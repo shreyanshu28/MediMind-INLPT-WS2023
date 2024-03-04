@@ -1,123 +1,97 @@
 # Overview
 
-In this project we have decided to work with PubMed data to build a Question Answering system to provide a accurate and cocise answers to users based on the downloaded PubMed data during a specific duration from 2013 -> 2024.We are using in this project NLP techniques for instance embedings, storing, loading, chunking, indexing, information retrival, conversation retrival chain to capture semantics about the text data which allows the model to understand, interpret and generate a new answer from the retrived question.
+In this project, we leverage PubMed data to develop a Question Answering (QA) system that delivers precise and concise answers based on PubMed articles published from 2013 to 2024. Utilizing the **RAG Architecture**, we implement various NLP techniques such as embeddings creation, storage, loading, chunking, indexing, and information retrieval, along with a conversation retrieval chain. These methods enable our model to comprehend, interpret, and generate new answers from retrieved questions, capturing the semantic essence of the text data effectively.
 
 ## Approach
 
-- Gathering the data from a websource is a challenging part. we have implmented a function called search_and_download_abstracts function automates the process of searching for and downloading abstracts from the PubMed database. It utilizes the Entrez API to perform a search query based on specified parameters and then downloads the abstracts found within a given date range. This function is particularly useful for researchers needing to gather large volumes of scientific journals efficiently. given that there is a limitation on the website 10,000 record per request. API_KEYS & EMAIL are stored in local file instead of being hard coded thats why we are using 'dotenv package' for loading the environment variables.
+### Data Acquisition
 
-- cleaning the raw data, there are several steps in cleaning the raw data:
+Acquiring data from a web source poses significant challenges. Our search_and_download_abstracts function automates the process of searching for and downloading abstracts from the PubMed database using the Entrez API. It performs search queries based on specified parameters and downloads abstracts within a given date range. This function is essential for efficiently gathering large volumes of scientific journals, considering the 10,000 record per request limit on the website. To enhance security and maintainability, API keys and email addresses are stored using the 'dotenv package' for environment variable management, rather than being hard-coded.
 
-1. lowercase to all text which allows to have only one representation to for each word.
-2. tokenization: transform raw text into a format that assits in creating embeddings.
-3. Normalization: preform stemming or lemmatization, which reduce words to their base or root form
+### Preprocessing (Data Cleaning)
 
-- data loading, processing, embedding, and storing results in a vector database for efficient retrieval.
+The raw data undergoes cleaning to ensure quality and relevance:
 
-1. vectore store creation: Setting up a directory for the vector.
-2. loading and processing PubMed Data: Reading and processing PubMed data for analysis.
-3. Extraction and chunking of text sections: Extracting sections from text files and chunking them for processing.
+* Duplicate PMIDs are dropped.
+* Rows missing abstract values are dropped.
+* Column data types are converted to strings.
+* Select the significat columns in our case PMID, Abstract, Title, place of publication and date of publication etc...
+* Save the dataframe in Parquet format to leverage its storage efficiency advantages.
+
+### Additional Techniques (Not Implemented)
+
+These methods were considered but not implemented in our project:
+
+* Lowercasing: Ensures a single representation for each word by converting all text to lowercase.
+* Tokenization: Transforms raw text into a format conducive to embedding creation.
+* Normalization: Applies stemming or lemmatization to reduce words to their base or root form.
+* Alphabetical Filtering: Removes numbers and special characters, retaining only alphabetic characters.
+
+### Downloading the data
+
+* we have uploaded data starting from 2013->2019 becuase it has small volume becuase github has file size limitation. Therefore, we have used HeiBox to store the rest of the data from 2020-> 2024 in HEIBOX in the follwoing linke : <https://heibox.uni-heidelberg.de/d/692badba5bfa44f889c6/>
+
+* we have built a script that use PubMed API 'Entrez'.
+
+* To use go to the follwoing website and create your API_KEYS and store EMAIL and API_KEYS inside config/.env you have to create a API_KEYS. <https://account.ncbi.nlm.nih.gov/settings/>
+
+* To download the FAISS_Index files: <https://heibox.uni-heidelberg.de/d/3f7644ce7dba4db4bfc2//>
+
+* data loading, processing, embedding, and storing results in a vector database for efficient retrieval.
+
+1. loading and processing PubMed Data: Reading and processing PubMed data for analysis.
+2. Extraction and chunking of text sections: Extracting sections from text files and chunking them for processing.
+3. vectore store creation: Setting up a directory for the vector.
 4. Embedding text chunks: the process of transforming segments of text into numerical vectors. which captures the semantic meaning of the text, allows machines to interpret and process.
 5. Storing the FAISS index Results: Saving the embedded chunks to a vector database for querying.
 
-## Downloading the data
+### Preprocessing
 
-- we have uploaded data starting from 2013->2019 becuase it has small volume becuase github has file size limitation. Therefore, we have used heibox to store the rest of the data from 2020-> 2024 in HEIBOX in the follwoing linke : <https://heibox.uni-heidelberg.de/d/692badba5bfa44f889c6/>
+* Change the datatype for each column
 
-- we have built a script that use PubMed API 'Entrez'.
+* Select the significat columns in our case PMID, Abstract, Title, place of publication and date of publication etc...
 
-- To use go to the follwoing website and create your API_KEYS and store EMAIL and API_KEYS inside config/.env you have to create a API_KEYS. <https://account.ncbi.nlm.nih.gov/settings/>
+* drop rows that has duplicate PMID.
 
-- To download the FAISS_Index files: <https://heibox.uni-heidelberg.de/d/b14ff06bffe14d7081ab/>
+* drop rows that has none values for Abstract column
 
-## Preprocessing
+* Save the dataframe in Parquet format to leverage its storage efficiency advantages.
 
-- Change the datatype for each column
+### Split & Chunk
 
-- Select the significat columns in our case PMID, Abstract, Title, place of publication and date of publication etc...
+* In split and chunking process, we use `RecursiveCharacterTextSplitter`. to break down data into smaller segments.
+* Each document is divided recursively, ensuring that the resulting segments have an appropriate size for efficient processing and analysis.
 
-- drop rows that has duplicate PMID.
+## Embeddings
 
-- drop rows that has none values for Abstract column
-
-- Save the dataframe in Parquet format to leverage its storage efficiency advantages.
-
-# Overview
-
-In this project we have decided to work with PubMed data to build a Question Answering system to provide a accurate and cocise answers to users based on the downloaded PubMed data during a specific duration from 2013 -> 2024.We are using in this project NLP techniques for instance embedings, storing, loading, chunking, indexing, information retrival, conversation retrival chain to capture semantics about the text data which allows the model to understand, interpret and generate a new answer from the retrived question.
-
-## Approach
-
-- Gathering the data from a websource is a challenging part. we have implmented a function called search_and_download_abstracts function automates the process of searching for and downloading abstracts from the PubMed database. It utilizes the Entrez API to perform a search query based on specified parameters and then downloads the abstracts found within a given date range. This function is particularly useful for researchers needing to gather large volumes of scientific journals efficiently. given that there is a limitation on the website 10,000 record per request. API_KEYS & EMAIL are stored in local file instead of being hard coded thats why we are using 'dotenv package' for loading the environment variables.
-
-- cleaning the raw data, there are several steps in cleaning the raw data:
-
-1. lowercase to all text which allows to have only one representation to for each word.
-2. tokenization: transform raw text into a format that assits in creating embeddings.
-3. Normalization: preform stemming or lemmatization, which reduce words to their base or root form
-
-- data loading, processing, embedding, and storing results in a vector database for efficient retrieval.
-
-1. vectore store creation: Setting up a directory for the vector.
-2. loading and processing PubMed Data: Reading and processing PubMed data for analysis.
-3. Extraction and chunking of text sections: Extracting sections from text files and chunking them for processing.
-4. Embedding text chunks: the process of transforming segments of text into numerical vectors. which captures the semantic meaning of the text, allows machines to interpret and process.
-5. Storing the FAISS index Results: Saving the embedded chunks to a vector database for querying.
-
-## Downloading the data
-
-- we have uploaded data starting from 2013->2019 becuase it has small volume becuase github has file size limitation. Therefore, we have used heibox to store the rest of the data from 2020-> 2024 in HEIBOX in the follwoing linke : <https://heibox.uni-heidelberg.de/d/692badba5bfa44f889c6/>
-
-- we have built a script that use PubMed API 'Entrez'.
-
-- To use go to the follwoing website and create your API_KEYS and store EMAIL and API_KEYS inside config/.env you have to create a API_KEYS. <https://account.ncbi.nlm.nih.gov/settings/>
-
-- To download the FAISS_Index files: <https://heibox.uni-heidelberg.de/d/b14ff06bffe14d7081ab/>
-
-## Preprocessing
-
-- Change the datatype for each column
-
-- Select the significat columns in our case PMID, Abstract, Title, place of publication and date of publication etc...
-
-- drop rows that has duplicate PMID.
-
-- drop rows that has none values for Abstract column
-
-- Save the dataframe in Parquet format to leverage its storage efficiency advantages.
-
-## Split & Chunk
-
-- In split and chunking process, we use RecursiveCharacterTextSplitter to break down data into smaller segments.
-- Each document is divided recursively, ensuring that the resulting segments have an appropriate size for efficient processing and analysis.
+1. **Load Documents**: Use `DataFrameLoader` to load documents from a DataFrame.
+2. **Generate Document Embeddings**: Convert documents to embeddings using`GPT4AllEmbeddings`.
 
 ## Create a vectore store
 
-- We used the FAISS library to index and store the vector representations(embeddings) of the text documents.
+* We used the FAISS library to index and store the vector representations(embeddings) of the text documents.
 
-- We saved the vector store locally using the save_local method. To load the vector store from the saved directory, we use the FAISS.load_local method. With the help of that, indexed data is available for similarity search and retrieval.
+* We saved the vector store locally using the save_local method. To load the vector store from the saved directory, we use the FAISS.load_local method. With the help of that, indexed data is available for similarity search and retrieval.
 
 ## Chain
 
-- We initialized an instance of the Ollama language model (llm) that helped us generate responses based on the provided context, metadata, and user queries.
+* We initialized an instance of the `Ollama` and use llam2 language model `llm` that helped us generate responses based on the provided context, metadata, and user queries.
 
-- We created a prompt template that specifies how the system should generate responses. Then, We turned vector store into a retriever. This retriever will fetch relevant documents based on user queries.
+* We created a prompt template that specifies how the system should generate responses. Then, We turned vector store into a retriever. This retriever will fetch relevant documents based on user queries `get_relevant_documents(query)`.
 
-- We created a chain (document_chain) that processes documents. This chain uses the language model (llm) to generate responses based on the provided context, metadata, and user input.
+* We created a `document_chain` that processes documents. This chain uses the language model (llm) to generate responses based on the provided context, metadata, and user input.
 
-- We created another chain (retriever_chain) that combines the history of conversations with document retrieval. This chain ensures that retrieved documents are relevant to the ongoing conversation.
+* We created another `retriever_chain` that combines the history of conversations with document retrieval. This chain ensures that retrieved documents are relevant to the ongoing conversation.
 
-- We created a retrieval chain that combines a history-aware retriever and a document chain. The history-aware retriever considers the conversation history, while the document chain processes the retrieved documents. Then, we invoke the retrieval chain with the appropriate inputs to generate responses based on the provided context, metadata, and user query.
+* We created a retrieval chain that combines a history-aware retriever and a document chain. The history-aware retriever considers the conversation history, while the document chain processes the retrieved documents. Then, we invoke the retrieval chain with the appropriate inputs to generate responses based on the provided context, metadata, and user query.
 
-## Evaluation
+### Evaluation
 
--
-
--
+* TODO
 
 ## Frontend
 
-- Unfortuantly, we didn't have much time to integrate the Questioning and Answering system with the frontend but we have built the user interface.
+* Unfortuantly, we didn't have much time to integrate the Questioning and Answering system with the frontend but we have built the user interface.
 
 1. `cd frontend`
 
@@ -131,96 +105,38 @@ In this project we have decided to work with PubMed data to build a Question Ans
 
 ## Future work
 
--**User Feedback and Iteration**
+### User Feedback and Iteration
 
-- Establish mechanisms for collecting user feedback on the frontend interface and functionality. This feedback will be invaluable for identifying areas for improvement and refining the user experience.
+* Establish mechanisms for collecting user feedback on the frontend interface and functionality. This feedback will be invaluable for identifying areas for improvement and refining the user experience.
 
-- Plan for iterative development cycles focused on implementing user feedback, fixing issues, and introducing new features based on user needs and technological advancements.
+* Plan for iterative development cycles focused on implementing user feedback, fixing issues, and introducing new features based on user needs and technological advancements.
 
--**Multilingual Data Processing and Analysis**
+### Multilingual Data Processing and Analysis
 
-- Extend the system's capabilities to process and analyze documents in multiple languages addressing the current limitation of English-only support.
+* Extend the system's capabilities to process and analyze documents in multiple languages addressing the current limitation of English-only support.
 
-- Implement NLP tools and models that are optimized for multilingual processing, such as transformer-based models with multilingual capabilities (e.g., mBERT, XLM-R).
+* Implement NLP tools and models that are optimized for multilingual processing, such as transformer-based models with multilingual capabilities (e.g., mBERT, XLM-R).
 
-- Develop or integrate translation services to allow users to submit queries in their language and receive translated results, maintaining the semantic integrity of the content.
+* Develop or integrate translation services to allow users to submit queries in their language and receive translated results, maintaining the semantic integrity of the content.
 
-- Conduct research on language-specific nuances and cultural contexts to ensure accurate interpretation and analysis of foreign language documents.
+* Conduct research on language-specific nuances and cultural contexts to ensure accurate interpretation and analysis of foreign language documents.
 
-# Refrences
+## Refrences
 
-- <https://python.langchain.com/docs/get_started/quickstart#conversation-retrieval-chain>
+* LangChain. (n.d.). Langchain: A framework for developing applications powered by language models. <https://python.langchain.com/docs/get_started/introduction>
 
-- <https://python.langchain.com/docs/expression_language/cookbook/retrieval>
+* LangChain. (n.d.). Retrieving relevant data with LangChain. <https://python.langchain.com/docs/use_cases/chatbots/retrieval>
 
-- <https://python.langchain.com/docs/integrations/llms/>
+* LangChain. (n.d.). Supported Language Models. <https://python.langchain.com/docs/modules/model_io/llms/>
 
-- <https://python.langchain.com/docs/modules/data_connection/vectorstores/>
+* LangChain. (n.d.). Vector Stores. <https://python.langchain.com/docs/integrations/vectorstores>
 
-- <https://python.langchain.com/docs/modules/data_connection/retrievers/>
+* LangChain. (n.d.). Retrievers. <https://python.langchain.com/docs/integrations/retrievers>
 
-- <https://js.langchain.com/docs/modules/chains/popular/vector_db_qa>
+* LangChain. (n.d.). VectorDB Q&A Chain. <https://js.langchain.com/docs/integrations/vectorstores>
 
-- <https://python.langchain.com/docs/modules/data_connection/retrievers/vectorstore>
+* LangChain. (n.d.). VectorStore Retriever. <https://python.langchain.com/docs/integrations/retrievers>
 
-- <https://python.langchain.com/docs/integrations/text_embedding/gpt4all>
+* Ola LLAMA. (n.d.). OLAMA: Open Large Language Model Archive. <https://github.com/ollama/ollama>
 
-- <https://github.com/ollama/ollama?tab=readme-ov-file>
-
-- <https://github.com/langchain-ai/langgraph/blob/main/examples/rag/langgraph_crag_mistral.ipynb>
-
-## Evaluation
-
--
-
--
-
-## Frontend
-
-- Unfortuantly, we didn't have much time to integrate the Questioning and Answering system with the frontend but we have built the user interface.
-
-1. `cd frontend`
-
-2. `npm install`
-
-3. `npm start`
-
-4. You can now view frontend in the browser. Local: <http://localhost:3000>
-
-## Future work
-
--**User Feedback and Iteration**
-
-- Establish mechanisms for collecting user feedback on the frontend interface and functionality. This feedback will be invaluable for identifying areas for improvement and refining the user experience.
-
-- Plan for iterative development cycles focused on implementing user feedback, fixing issues, and introducing new features based on user needs and technological advancements.
-
--**Multilingual Data Processing and Analysis**
-
-- Extend the system's capabilities to process and analyze documents in multiple languages addressing the current limitation of English-only support.
-
-- Implement NLP tools and models that are optimized for multilingual processing, such as transformer-based models with multilingual capabilities (e.g., mBERT, XLM-R).
-
-- Develop or integrate translation services to allow users to submit queries in their language and receive translated results, maintaining the semantic integrity of the content.
-
-- Conduct research on language-specific nuances and cultural contexts to ensure accurate interpretation and analysis of foreign language documents.
-
-# Refrences
-
-- LangChain. (n.d.). Langchain: A framework for developing applications powered by language models. https://python.langchain.com/docs/get_started/introduction
-
-- LangChain. (n.d.). Retrieving relevant data with LangChain. https://python.langchain.com/docs/use_cases/chatbots/retrieval
-
-- LangChain. (n.d.). Supported Language Models. https://python.langchain.com/docs/modules/model_io/llms/
-
-- LangChain. (n.d.). Vector Stores. https://python.langchain.com/docs/integrations/vectorstores
-
-- LangChain. (n.d.). Retrievers. https://python.langchain.com/docs/integrations/retrievers
-
-- LangChain. (n.d.). VectorDB Q&A Chain. https://js.langchain.com/docs/integrations/vectorstores
-
-- LangChain. (n.d.). VectorStore Retriever. https://python.langchain.com/docs/integrations/retrievers
-
-- Ola LLAMA. (n.d.). OLAMA: Open Large Language Model Archive. https://github.com/ollama/ollama
-
-- Langchain. (n.d.). LangGraph RAG example notebook. https://github.com/langchain-ai/langgraph/blob/main/examples/rag/langgraph_self_rag.ipynb?ref=blog.langchain.dev
+* Langchain. (n.d.). LangGraph RAG example notebook. <https://github.com/langchain-ai/langgraph/blob/main/examples/rag/langgraph_self_rag.ipynb?ref=blog.langchain.dev>
