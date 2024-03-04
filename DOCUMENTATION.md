@@ -1,17 +1,23 @@
 # Title: Question Answering RAG System for PubMed Data
-# Team Members:
-* @ozgeberktas: Insaf Ozge Berktas (insaf.berktas@stud.uni-heidelberg.de)
-* @jeromepatel: Jyot Makadiya (jyot.makadiya@stud.uni-heidelberg.de)
-* @a-sameh1: Ahmed Abdelraouf (ahmed.abdelraouf@stud.uni-heidelberg.de)
-# Member Contribution:
-* Insaf Ozge Berktas: Preprocessing, Split & Chunk, Embeddings, Create a vectore store (and experimental vectordatabase), alternative chain
-* Jyot Makadiya: Preprocessing, Embeddings, Alternative experimental vectordatabase (postgreSQL and pgvector), Conversational chain, Evaluation
+
+## Team Members
+
+* @ozgeberktas: Insaf Ozge Berktas (<insaf.berktas@stud.uni-heidelberg.de>)
+* @jeromepatel: Jyot Makadiya (<jyot.makadiya@stud.uni-heidelberg.de>)
+* @a-sameh1: Ahmed Abdelraouf (<ahmed.abdelraouf@stud.uni-heidelberg.de>)
+
+## Member Contribution
+
+* Insaf Ozge Berktas: Preprocessing, Split & Chunk, Embeddings, Create a vectore store, alternative chain
+* Jyot Makadiya: Preprocessing, Embeddings, alternative experimental vectordatabase, Conversational chain, Evaluation
 * Ahmed: Data Acquisition, Split & Chunk, Embeddings, Create a vectore store, advanced chain and retrieval system
 
-# Advisor:
-* Satya Almasian 
+## Advisor
 
-# Anti-Plagiarism Statement:
+* Satya Almasian
+
+## Anti-Plagiarism Statement
+
 This project is entirely our own work, except where I have clearly acknowledged the contribution of others. It has not been submitted for any other degree or diploma at any institution. We have cited all sources used in its creation, adhering to Heidelberg University's academic integrity and anti-plagiarism policies. By submitting this work for the Project for Natural Language processing course, We consent to its verification for originality and understand the consequences of any found violation of plagiarism standards.
 
 # Introduction
@@ -32,7 +38,6 @@ With the recent advacement in NLP, there has been a significant increase in the 
 
 
 ## Approach
-
 
 ### Data Acquisition
 
@@ -57,21 +62,17 @@ These methods were considered but not implemented in our project:
 * Normalization: Applies stemming or lemmatization to reduce words to their base or root form.
 * Alphabetical Filtering: Removes numbers and special characters, retaining only alphabetic characters.
 
-### Downloading the data
-
-* we have uploaded data starting from 2013->2019 becuase it has small volume becuase github has file size limitation. Therefore, we have used HeiBox to store the rest of the data from 2020-> 2024 in HEIBOX in the follwoing linke : <https://heibox.uni-heidelberg.de/d/692badba5bfa44f889c6/>
-
-* To use go to the follwoing website and create your API_KEYS and store EMAIL and API_KEYS inside config/.env you have to create a API_KEYS. <https://account.ncbi.nlm.nih.gov/settings/>
-
-* To download the FAISS_Index files: <https://heibox.uni-heidelberg.de/d/3f7644ce7dba4db4bfc2//>
-
-* data loading, processing, embedding, and storing results in a vector database for efficient retrieval.
+## workflow
 
 1. loading and processing PubMed Data: Reading and processing PubMed data for analysis.
-2. Extraction and chunking of text sections: Extracting sections from text files and chunking them for processing.
-3. vectore store creation: Setting up a directory for the vector.
+2. Splitting and chunking of text sections: Extracting sections from text files and chunking them for processing.
+3. Vectore store creation: Setting up a directory for the vector.
 4. Embedding text chunks: the process of transforming segments of text into numerical vectors. which captures the semantic meaning of the text, allows machines to interpret and process.
 5. Storing the FAISS index Results: Saving the embedded chunks to a vector database for querying.
+
+6. loading, processing, embedding, and storing results in a vector database for efficient retrieval.
+
+7. Then the **RAG Chain** steps are mentioned below in more details
 
 ### Preprocessing
 
@@ -232,7 +233,5 @@ We experimented with the human evaluation on various settings, with chat_history
 * Wolf, T., Debut, L., Sanh, V., Chaumond, J., Delangue, C., Moi, A., ... & Rush, A. M. (2019). HuggingFace's Transformers: State-of-the-art Natural Language Processing. ArXiv, abs/1910.03771.
 * Jiang, A. Q., Sablayrolles, A., Mensch, A., Bamford, C., Chaplot, D. S., Casas, D. D. L., ... & Sayed, W. E. (2023). Mistral 7B. arXiv preprint arXiv:2310.06825.
 * Anyscale. (n.d.). Ray: A distributed execution framework. <https://docs.ray.io/en/master/index.html>
-* FAISS. (n.d.). FAISS: A library for efficient similarity search. 
-* ChatGPT. (n.d.). ChatGPT: OpenAI's conversational language model. <https://openai.com/gpt-3>
-* Anyscale RAG Blog (n.d.) Building a QA system with Ray  <https://www.anyscale.com/blog/building-a-self-hosted-question-answering-service-using-langchain-ray>
-* 
+* FAISS. (n.d.). FAISS: A library for efficient similarity search.
+*
