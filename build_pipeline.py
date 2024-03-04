@@ -108,16 +108,19 @@ if __name__ == "__main__":
     while True:
         query = input("Enter your query (type exit to leave chat): ")
         if query == "exit":
+            print("thank you for chatting with Medical Expert RAG System! Hope you have a good time!")
             break
         docs = get_relenvant_documents(retriever, query)
         context = docs[0]
-
-        chat_history = chain.invoke({
+        # print("docs retrieved")
+        response = chain.invoke({
             "chat_history": chat_history,
             "input": query,
             "context": context,
         })
-        print(chat_history["answer"])
+        print(response["answer"])
+        chat_history = response["chat_history"]
+
 
 
 
