@@ -1,0 +1,16 @@
+langchain-community
+langchain-core
+langchain
+tqdm
+pandas
+ipywidgets
+pyarrow
+torch
+faiss-gpu
+matplotlib
+numpy
+scipy
+sentence-transformers
+transformers
+opencv-python
+huggingface

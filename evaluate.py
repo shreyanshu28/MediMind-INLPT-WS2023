@@ -12,6 +12,7 @@ from ragas.metrics.critique import harmfulness
 from ragas import evaluate
 from tqdm import tqdm
 import pandas as pd
+from build_pipeline import get_retrieval_chain, get_relenvant_documents, get_document_chain
 
 # @title
 import matplotlib.pyplot as plt
@@ -19,12 +20,16 @@ import matplotlib.pyplot as plt
 
 def create_eval_dataset(rag_pipeline, eval_dataset):
   rag_dataset = []
+  retrieval_chain, retriever = rag_pipeline
+
   for row in tqdm(eval_dataset):
+    documents = get_relenvant_documents(retriever, row["context"])
+    context = documents[0]
     answer = rag_pipeline.invoke({"question" : row["question"]})
     rag_dataset.append(
         {"question" : row["question"],
          "answer" : answer["response"],
-         "contexts" : [context.page_content for context in answer["context"]],
+         "contexts" : context,
          "ground_truths" : [row["ground_truth"]]
          }
     )
@@ -50,7 +55,12 @@ def evaluate_rag_model(rag_dataset):
 #read evaldataset
 eval_dataset = pd.read_csv("qa_generated.csv")
 
-basic_qa_ragas_dataset = create_eval_dataset(retrieval_augmented_qa_chain, eval_dataset)
+#get rag chain
+
+rag_chain = get_retrieval_chain()
+
+
+basic_qa_ragas_dataset = create_eval_dataset(rag_chain, eval_dataset)
 
 basic_qa_result = evaluate_rag_model(basic_qa_ragas_dataset)
 
