@@ -236,4 +236,4 @@ We experimented with the human evaluation on various settings, with chat_history
 * Jiang, A. Q., Sablayrolles, A., Mensch, A., Bamford, C., Chaplot, D. S., Casas, D. D. L., ... & Sayed, W. E. (2023). Mistral 7B. arXiv preprint arXiv:2310.06825.
 * Anyscale. (n.d.). Ray: A distributed execution framework. <https://docs.ray.io/en/master/index.html>
 * FAISS. (n.d.). FAISS: A library for efficient similarity search.
-*
+* LangChain. (n.d.). Agents. https://python.langchain.com/docs/modules/agents/
