@@ -244,3 +244,4 @@ We also experimented with human evaluation based on various question types and p
 * Anyscale. (n.d.). Ray: A distributed execution framework. <https://docs.ray.io/en/master/index.html>
 * FAISS. (n.d.). FAISS: A library for efficient similarity search.
 * LangChain. (n.d.). Agents. https://python.langchain.com/docs/modules/agents/
+* Bejoy, M. (n.d.). Langchain for context-based question answering with memory. https://medium.com/@mahimabejoy/langchain-for-context-based-question-answering-with-memory-b6e0f825de87
