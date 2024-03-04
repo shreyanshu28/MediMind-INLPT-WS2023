@@ -137,7 +137,7 @@ The goal of the evaluation is to assess the performance of the system in retriev
 ## Automated Evaluation
 
 This evaluation is done using generated question answer pairs using a high quality language model. We used the `Mistral-7b-Instruct` model to generate questions and answers for the documents in the dataset. We then used the generated question answer pairs to evaluate the performance of the system.
-* We 
+* We generated 100 question using the above model. 
 
 * Choice of model: Instruct model is a high quality language model that is trained on a large dataset and is capable of generating high quality questions and answers by following the instructions provided accurately.
 * Generating questions: We used the Instruct model to generate questions for the documents in the dataset. We used prompt engineering methods to craft a prompt which gives one question per context (in our case abstract).
