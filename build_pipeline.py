@@ -11,7 +11,7 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_history_aware_retriever
 from langchain_core.prompts import MessagesPlaceholder
 from langchain_core.messages import HumanMessage, AIMessage
-
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 
 import os
 import faiss
@@ -40,6 +40,10 @@ def read_index(index_path):
 #load llm model
 def load_llm_model():
     llm = Ollama(model="llama2")
+    #model_name = "mistralai/Mistral-7B-Instruct-v0.1" #or change to a smaller model depending upon your GPU Size
+    #model = AutoModelForCausalLM.from_pretrained(model_name)
+    #tokenizer = AutoTokenizer.from_pretrained(model_name)
+    #model.to(device)
     return llm
 
 def get_document_chain(llm, retriever, query):
