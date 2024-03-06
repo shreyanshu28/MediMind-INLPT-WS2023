@@ -1,6 +1,5 @@
 langchain-community
 langchain-core
-langchain
 tqdm
 pandas
 ipywidgets
@@ -16,5 +15,6 @@ opencv-python
 huggingface
 datasets
 ragas
-flash_attn
+ollama
+gpt4all==1.0.8
 
